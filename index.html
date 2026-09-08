@@ -36,7 +36,7 @@
       transition: background-color 0.3s, color 0.3s;
     }
 
-    /* Верхняя панель */
+    /* Верхняя панель профиля */
     .top-bar {
       padding: 16px;
       background: var(--card-bg);
@@ -93,7 +93,7 @@
       color: var(--text-muted);
     }
 
-    /* Баннер просмотра чужого профиля */
+    /* Баннер при просмотре чужой страницы */
     .viewing-banner {
       background: rgba(255, 255, 255, 0.1);
       border-bottom: 1px solid var(--card-border);
@@ -108,7 +108,7 @@
       display: flex;
     }
 
-    /* Основной контент */
+    /* Основной контейнер с автоскроллом */
     .main-container {
       flex: 1;
       overflow-y: auto;
@@ -126,7 +126,7 @@
       gap: 16px;
     }
 
-    /* Карточки */
+    /* Стиль карточек */
     .card {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
@@ -176,7 +176,7 @@
       border: 1px solid var(--card-border);
     }
 
-    /* Сетка магазина / Кастомизации */
+    /* Сетки товаров и подарков */
     .shop-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -209,7 +209,7 @@
       color: var(--text-muted);
     }
 
-    /* Подарки в профиле */
+    /* Сетка подарков в профиле */
     .gifts-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -243,7 +243,7 @@
       justify-content: center;
     }
 
-    /* Колесо Фортуны */
+    /* Колесо рулетки */
     .wheel-wrapper {
       display: flex;
       flex-direction: column;
@@ -279,7 +279,7 @@
       transition: transform 4s cubic-bezier(0.15, 0.9, 0.15, 1);
     }
 
-    /* Доска почёта */
+    /* Лидерборд */
     .leaderboard-list {
       display: flex;
       flex-direction: column;
@@ -382,7 +382,7 @@
       font-size: 18px;
     }
 
-    /* Уведомление */
+    /* Всплывающие уведомления */
     .toast {
       position: fixed;
       top: 20px;
@@ -404,7 +404,7 @@
       transform: translateX(-50%) translateY(0);
     }
 
-    /* Модальное окно дарения */
+    /* Модальное окно */
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -431,9 +431,10 @@
 </head>
 <body>
 
+  <!-- Toast всплывашка -->
   <div id="toast" class="toast">Уведомление</div>
 
-  <!-- Верхняя панель -->
+  <!-- Верхний профильный баннер -->
   <div class="top-bar">
     <div class="user-info">
       <div class="avatar-wrapper">
@@ -450,16 +451,16 @@
     </div>
   </div>
 
-  <!-- Плашка чужого профиля -->
+  <!-- Баннер просмотра профиля другого игрока -->
   <div id="viewingBanner" class="viewing-banner">
     <span>👀 Просмотр чужого профиля</span>
     <button class="btn btn-secondary" style="width: auto; padding: 4px 10px; font-size: 11px;" onclick="exitGuestView()">Вернуться к себе</button>
   </div>
 
-  <!-- Контент вкладок -->
+  <!-- Основной контент (Вкладки) -->
   <div class="main-container">
 
-    <!-- Вкладка: Главная / Спин -->
+    <!-- Вкладка 1: Спин / Заработок -->
     <div id="tab-home" class="tab-content active">
       <div class="card">
         <div class="card-title">
@@ -484,7 +485,7 @@
       </div>
     </div>
 
-    <!-- Вкладка: Магазин -->
+    <!-- Вкладка 2: Магазин кастомизации -->
     <div id="tab-shop" class="tab-content">
       <div class="card">
         <div class="card-title">Темы оформления</div>
@@ -541,7 +542,7 @@
       </div>
     </div>
 
-    <!-- Вкладка: Топ -->
+    <!-- Вкладка 3: Доска Почёта -->
     <div id="tab-leaderboard" class="tab-content">
       <div class="card">
         <div class="card-title">
@@ -552,16 +553,14 @@
       </div>
     </div>
 
-    <!-- Вкладка: Профиль -->
+    <!-- Вкладка 4: Личный профиль / Подарки -->
     <div id="tab-profile" class="tab-content">
       <div class="card">
         <div class="card-title">
           <span id="giftsTitle">Мои подарки</span>
           <button id="sendGiftProfileBtn" class="btn btn-secondary" style="display:none; width:auto; padding:6px 12px; font-size:12px;" onclick="openGiftForCurrentGuest()">Сделать подарок 🎁</button>
         </div>
-        <div class="gifts-grid" id="profileGifts">
-          <!-- Заполняется динамически -->
-        </div>
+        <div class="gifts-grid" id="profileGifts"></div>
       </div>
 
       <div class="card">
@@ -587,12 +586,12 @@
       </div>
     </div>
 
-    <!-- Вкладка: Настройки / О нас -->
+    <!-- Вкладка 5: Информация -->
     <div id="tab-settings" class="tab-content">
       <div class="card">
         <div class="card-title">О проекте «ПЛОМБИР»</div>
         <p style="font-size: 14px; color: var(--text-muted); line-height: 1.5; margin-bottom: 12px;">
-          Официальное Telegram Mini App-приложение экосистемы ПЛОМБИР. Зарабатывайте PLM, покупайте кастомизацию, дарите подарки друзьям и будьте лучшим!
+          Официальное Telegram Mini App-приложение экосистемы ПЛОМБИР. Зарабатывайте PLM, покупайте кастомизацию, дарите подарки друзьям и занимайте высшие места в рейтинге!
         </p>
         <button class="btn btn-secondary" onclick="contactSupport()">💬 Связаться с поддержкой</button>
       </div>
@@ -600,7 +599,7 @@
 
   </div>
 
-  <!-- Нижняя навигация -->
+  <!-- Нижнее меню навигации -->
   <div class="bottom-nav">
     <button class="nav-item active" onclick="switchTab('home', this)">
       <span class="nav-icon">🎡</span>
@@ -624,18 +623,18 @@
     </button>
   </div>
 
-  <!-- Модалка Дарения Подарка -->
+  <!-- Окно Дарения Подарка -->
   <div id="giftModal" class="modal-overlay">
     <div class="modal">
       <div class="card-title" style="margin-bottom: 8px;">Сделать подарок</div>
       <p id="giftTargetName" style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;"></p>
       <div class="shop-grid" style="margin-bottom: 16px;">
-        <div class="shop-item" onclick="sendGift('🍧', 100)">
+        <div class="shop-item" onclick="sendGift('🍧', 100, 'PLM')">
           <div class="shop-item-icon">🍧</div>
           <div class="shop-item-title">Мороженое</div>
           <div class="shop-item-price">100 PLM</div>
         </div>
-        <div class="shop-item" onclick="sendGift('🚀', 500)">
+        <div class="shop-item" onclick="sendGift('🚀', 500, 'PLM')">
           <div class="shop-item-icon">🚀</div>
           <div class="shop-item-title">Ракета</div>
           <div class="shop-item-price">500 PLM</div>
@@ -655,14 +654,19 @@
     </div>
   </div>
 
+  <!-- Скрипт приложения -->
   <script>
+    // URL Google Apps Script
     const GAS_URL = "https://script.google.com/macros/s/AKfycbyWPDCSNuKs9sekPTgcuGh9wbILVTUK2XHyi-tPPXRKc4g3sBdt4nUgW50ijrbuysKh/exec";
 
-    const tg = window.Telegram.WebApp;
-    tg.ready();
-    tg.expand();
+    // Инициализация Telegram WebApp
+    const tg = window.Telegram?.WebApp;
+    if (tg) {
+      tg.ready();
+      tg.expand();
+    }
 
-    // Данные аккаунта текущего пользователя
+    // Состояние пользователя
     let user = {
       id: "guest_" + Math.floor(100000 + Math.random() * 900000),
       first_name: "Тусовщик",
@@ -680,46 +684,50 @@
       gifts: {}
     };
 
-    // Переменные гостевого режима (просмотр чужого профиля)
+    // Состояние чужого профиля при просмотре
     let viewingUser = null; 
-
     let selectedGiftTargetId = null;
 
+    // Контроллеры автообновления
+    let isSyncing = false;
+    let syncTimer = null;
+
+    // Параметры рулетки
     const wheelSectors = [50, 100, 20, 200, 10, 500, 30, 1000];
     let isSpinning = false;
     let currentRotation = 0;
 
-    let leaders = [
-      { id: "101", name: "Пломбир_Кинг", score: 15400, likes: 42, liked: false, status: "Король Пати 🔥", name_color: "#ffd700", theme: "gold", ads: 12, gifts: { "👑": 3, "🚀": 2 }, photo_url: "" },
-      { id: "102", name: "Night_Party", score: 9800, likes: 18, liked: false, status: "Мороженщик 🍦", name_color: "#ff453a", theme: "neon", ads: 5, gifts: { "🍧": 5 }, photo_url: "" },
-      { id: "103", name: "Анонимный Тусовщик", score: 6200, likes: 9, liked: false, status: "Новичок", name_color: "#ffffff", theme: "default", ads: 2, gifts: {}, photo_url: "" }
-    ];
+    // Список лидеров
+    let leaders = [];
 
+    // Темы оформления
     const themes = {
       default: { bg: '#0d0d0d', card: '#181818', border: '#2a2a2a', accent: '#ffffff' },
       neon: { bg: '#090a0f', card: '#121526', border: '#1f2747', accent: '#00f0ff' },
       gold: { bg: '#141008', card: '#241c0e', border: '#3d3018', accent: '#ffd700' }
     };
 
-    window.addEventListener('DOMContentLoaded', async () => {
+    // Запуск приложения
+    window.addEventListener('DOMContentLoaded', () => {
       initTelegramUser();
       loadLocalState();
       drawWheel();
-      await loadUserData();
-      await loadLeaderboardData();
+      startAutoSync();
       setInterval(checkSpinAvailability, 1000);
     });
 
+    // Виброотклик Telegram
     function triggerHaptic(type = 'light') {
-      if (tg.HapticFeedback) {
+      if (tg && tg.HapticFeedback) {
         if (type === 'impact') tg.HapticFeedback.impactOccurred('medium');
         else if (type === 'notification') tg.HapticFeedback.notificationOccurred('success');
         else tg.HapticFeedback.selectionChanged();
       }
     }
 
+    // Считывание профиля Telegram
     function initTelegramUser() {
-      if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+      if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
         const u = tg.initDataUnsafe.user;
         user.id = String(u.id);
         user.first_name = u.first_name || "Тусовщик";
@@ -728,6 +736,7 @@
       }
     }
 
+    // Сохранение и загрузка локального состояния
     function saveLocalState() {
       localStorage.setItem(`plombir_user_${user.id}`, JSON.stringify(user));
     }
@@ -738,12 +747,13 @@
         try {
           const parsed = JSON.parse(saved);
           user = { ...user, ...parsed };
-        } catch (e) { console.error("Ошибка парсинга", e); }
+        } catch (e) { console.error("Ошибка считывания кэша", e); }
       }
       applyTheme(user.theme || 'default');
       updateProfileUI();
     }
 
+    // Применение темы
     function applyTheme(themeKey) {
       const t = themes[themeKey] || themes.default;
       document.documentElement.style.setProperty('--bg-color', t.bg);
@@ -752,6 +762,7 @@
       document.documentElement.style.setProperty('--accent', t.accent);
     }
 
+    // Показ сообщений
     function showToast(message) {
       const toast = document.getElementById('toast');
       toast.innerText = message;
@@ -761,6 +772,7 @@
       }, 3000);
     }
 
+    // Переключение вкладок
     function switchTab(tabId, btnElement) {
       triggerHaptic();
       document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
@@ -774,21 +786,20 @@
         renderLeaderboard();
       }
 
-      // Если ушли с вкладки профиля во время гостевого просмотра, сбрасываем вид
       if (tabId !== 'profile' && viewingUser) {
         exitGuestView();
       }
     }
 
+    // Обновление элементов интерфейса профиля
     function updateProfileUI() {
       const targetData = viewingUser || user;
       const isGuest = !!viewingUser;
 
-      document.getElementById('userName').innerText = targetData.is_anon ? "Анонимный Тусовщик" : targetData.first_name || targetData.name;
+      document.getElementById('userName').innerText = targetData.is_anon ? "Анонимный Тусовщик" : (targetData.first_name || targetData.name);
       document.getElementById('userName').style.color = targetData.is_anon ? "#ffffff" : (targetData.name_color || "#ffffff");
       document.getElementById('userStatus').innerText = targetData.status || "Новичок";
       
-      // Баланс всегда отображает личный баланс текущего пользователя
       document.getElementById('plmBalance').innerText = user.plm;
       document.getElementById('iceBalance').innerText = user.ice;
 
@@ -802,7 +813,6 @@
         document.getElementById('userAvatar').src = "https://via.placeholder.com/48/333/fff?text=P";
       }
 
-      // Элементы профиля для гостей и для хозяина
       const anonRow = document.getElementById('anonRow');
       const giftsTitle = document.getElementById('giftsTitle');
       const sendGiftBtn = document.getElementById('sendGiftProfileBtn');
@@ -810,7 +820,7 @@
 
       if (isGuest) {
         anonRow.style.display = 'none';
-        giftsTitle.innerText = `Подарки (${targetData.name || 'Пользователя'})`;
+        giftsTitle.innerText = `Подарки (${targetData.name || 'Игрока'})`;
         sendGiftBtn.style.display = 'block';
         viewingBanner.classList.add('active');
       } else {
@@ -833,6 +843,7 @@
       checkSpinAvailability();
     }
 
+    // Отрисовка сетки подарков
     function renderGifts(giftsObj) {
       const container = document.getElementById('profileGifts');
       container.innerHTML = "";
@@ -852,6 +863,7 @@
       });
     }
 
+    // Проверка таймера спина
     function checkSpinAvailability() {
       const now = Date.now();
       const cooldown = 24 * 60 * 60 * 1000;
@@ -876,7 +888,7 @@
       }
     }
 
-    /* --- ПОСЕЩЕНИЕ ЧУЖИХ СТРАНИЦ --- */
+    // Чужие страницы
     function viewUserProfile(targetId) {
       triggerHaptic();
       if (String(targetId) === String(user.id)) {
@@ -909,14 +921,15 @@
       }
     }
 
-    /* --- ПОКУПКИ В МАГАЗИНЕ --- */
+    // Покупки
     function buyTheme(themeKey, price, currency) {
       triggerHaptic('impact');
-      if (user[currency.toLowerCase()] < price) {
+      const currKey = currency.toLowerCase();
+      if (user[currKey] < price) {
         showToast(`Недостаточно ${currency}`);
         return;
       }
-      user[currency.toLowerCase()] -= price;
+      user[currKey] -= price;
       user.theme = themeKey;
       applyTheme(themeKey);
       saveLocalState();
@@ -928,11 +941,12 @@
 
     function buyStatus(statusName, price, currency) {
       triggerHaptic('impact');
-      if (user[currency.toLowerCase()] < price) {
+      const currKey = currency.toLowerCase();
+      if (user[currKey] < price) {
         showToast(`Недостаточно ${currency}`);
         return;
       }
-      user[currency.toLowerCase()] -= price;
+      user[currKey] -= price;
       user.status = statusName;
       saveLocalState();
       updateProfileUI();
@@ -943,11 +957,12 @@
 
     function buyNameColor(color, price, currency) {
       triggerHaptic('impact');
-      if (user[currency.toLowerCase()] < price) {
+      const currKey = currency.toLowerCase();
+      if (user[currKey] < price) {
         showToast(`Недостаточно ${currency}`);
         return;
       }
-      user[currency.toLowerCase()] -= price;
+      user[currKey] -= price;
       user.name_color = color;
       saveLocalState();
       updateProfileUI();
@@ -956,7 +971,7 @@
       sendServerUpdate('buyNameColor', { color, price, currency });
     }
 
-    /* --- ДАРЕНИЕ ПОДАРКОВ --- */
+    // Дарение подарка
     function openGiftModal(targetId, targetName) {
       triggerHaptic();
       if (String(targetId) === String(user.id)) {
@@ -983,7 +998,6 @@
 
       user[currKey] -= price;
 
-      // Обновляем подарки локально для получателя
       const targetLeader = leaders.find(l => String(l.id) === String(selectedGiftTargetId));
       if (targetLeader) {
         if (!targetLeader.gifts) targetLeader.gifts = {};
@@ -1003,60 +1017,73 @@
       });
     }
 
-    /* --- АПИ И СЕРВЕР --- */
-    async function loadUserData() {
+    // Фоновая синхронизация с серверной базой каждые 3 секунды
+    function startAutoSync() {
+      if (syncTimer) clearTimeout(syncTimer);
+      syncData();
+    }
+
+    async function syncData() {
+      if (isSyncing || !user.id) return;
+      isSyncing = true;
+
       try {
-        const res = await fetch(`${GAS_URL}?action=getUser&data=${encodeURIComponent(JSON.stringify({
-          user_id: user.id,
-          first_name: user.first_name,
-          username: user.username,
-          photo_url: user.photo_url
-        }))}`);
-        const data = await res.json();
-        if (data && data.success && data.user) {
-          user.plm = data.user.plm_balance ?? user.plm;
-          user.ice = data.user.ice_balance ?? user.ice;
-          user.ads = data.user.ads_watched ?? user.ads;
-          user.likes = data.user.likes ?? user.likes;
-          user.is_anon = data.user.is_anonymous ?? user.is_anon;
-          user.last_spin_time = data.user.last_spin_time ?? user.last_spin_time;
-          user.status = data.user.status ?? user.status;
-          user.name_color = data.user.name_color ?? user.name_color;
-          user.theme = data.user.theme ?? user.theme;
-          user.gifts = data.user.gifts ? JSON.parse(data.user.gifts) : user.gifts;
+        const [userRes, leaderRes] = await Promise.all([
+          fetch(`${GAS_URL}?action=getUser&data=${encodeURIComponent(JSON.stringify({
+            user_id: user.id,
+            first_name: user.first_name,
+            username: user.username,
+            photo_url: user.photo_url
+          }))}`),
+          fetch(`${GAS_URL}?action=getLeaderboard&user_id=${user.id}`)
+        ]);
+
+        const dataUser = await userRes.json();
+        const dataLeader = await leaderRes.json();
+
+        if (dataUser && dataUser.success && dataUser.user) {
+          user.plm = dataUser.user.plm_balance ?? user.plm;
+          user.ice = dataUser.user.ice_balance ?? user.ice;
+          user.ads = dataUser.user.ads_watched ?? user.ads;
+          user.likes = dataUser.user.likes ?? user.likes;
+          user.is_anon = dataUser.user.is_anonymous ?? user.is_anon;
+          user.last_spin_time = dataUser.user.last_spin_time ?? user.last_spin_time;
+          user.status = dataUser.user.status ?? user.status;
+          user.name_color = dataUser.user.name_color ?? user.name_color;
+          user.theme = dataUser.user.theme ?? user.theme;
+          user.gifts = dataUser.user.gifts ? (typeof dataUser.user.gifts === 'string' ? JSON.parse(dataUser.user.gifts) : dataUser.user.gifts) : user.gifts;
           
           if (!viewingUser) applyTheme(user.theme);
           saveLocalState();
           updateProfileUI();
         }
+
+        if (dataLeader && dataLeader.success && Array.isArray(dataLeader.leaders)) {
+          leaders = dataLeader.leaders;
+          renderLeaderboard();
+        }
+
       } catch (e) {
-        console.warn("Работа в оффлайн-режиме");
+        console.warn("Автообновление: связь с сервером потеряна или запрос еще обрабатывается");
+      } finally {
+        isSyncing = false;
+        // Повторный вызов через 3000 миллисекунд после завершения текущего
+        syncTimer = setTimeout(syncData, 3000); 
       }
     }
 
-    async function loadLeaderboardData() {
-      try {
-        const res = await fetch(`${GAS_URL}?action=getLeaderboard&user_id=${user.id}`);
-        const data = await res.json();
-        if (data && data.success && Array.isArray(data.leaders)) {
-          leaders = data.leaders;
-        }
-      } catch (e) {}
-      renderLeaderboard();
-    }
-
+    // Функция отправки изменений в Google Таблицу
     function sendServerUpdate(action, extraData = {}) {
       try {
         fetch(GAS_URL, {
           method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
           body: JSON.stringify({ action, user_id: user.id, ...extraData })
         });
       } catch (e) {}
     }
 
-    /* --- РЕНДЕР И ЛОГИКА ИГРЫ --- */
+    // Отрисовка рулетки
     function drawWheel() {
       const canvas = document.getElementById('wheelCanvas');
       const ctx = canvas.getContext('2d');
@@ -1086,6 +1113,7 @@
       }
     }
 
+    // Вращение колеса
     function spinWheel() {
       triggerHaptic('impact');
       const now = Date.now();
@@ -1121,6 +1149,7 @@
       }, 4000);
     }
 
+    // Просмотр рекламы
     function watchAd() {
       triggerHaptic('impact');
       showToast("📺 Просмотр рекламы...");
@@ -1136,6 +1165,7 @@
       }, 1500);
     }
 
+    // Обмен валют
     function convertCurrency() {
       triggerHaptic('impact');
       if (user.plm < 1000) {
@@ -1152,6 +1182,7 @@
       sendServerUpdate('convertCurrency');
     }
 
+    // Покупка анонимности
     function toggleAnon() {
       triggerHaptic('impact');
       if (user.is_anon) return;
@@ -1169,8 +1200,9 @@
       sendServerUpdate('toggleAnonymous');
     }
 
+    // Ставить/снимать лайк
     function toggleLike(event, targetId) {
-      event.stopPropagation(); // Отменяем переход в профиль при клике на лайк
+      event.stopPropagation();
       triggerHaptic();
       const leader = leaders.find(l => String(l.id) === String(targetId));
       if (!leader) return;
@@ -1187,17 +1219,20 @@
       sendServerUpdate('toggleLike', { target_id: targetId, liked: leader.liked });
     }
 
+    // Связь с поддержкой
     function contactSupport() {
       triggerHaptic();
-      if (tg.openTelegramLink) {
+      if (tg && tg.openTelegramLink) {
         tg.openTelegramLink("https://t.me/telegram");
       } else {
         window.open("https://t.me/telegram", "_blank");
       }
     }
 
+    // Отрисовка Доски Почёта
     function renderLeaderboard() {
       const container = document.getElementById('leaderboardList');
+      if (!container) return;
       container.innerHTML = "";
 
       const currentUserItem = {
@@ -1222,7 +1257,6 @@
         const themeClass = `theme-${item.theme || 'default'}`;
         div.className = `leader-item ${themeClass}`;
         
-        // Клик на элемент открывает чужой профиль
         div.onclick = () => viewUserProfile(item.id);
 
         const rank = index + 1;
