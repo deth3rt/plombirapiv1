@@ -199,6 +199,21 @@
 
     let canFreeSpin = false;
 
+    // Универсальная функция запроса к Google Apps Script через GET (без блокировок CORS)
+    async function sendRequest(action, payload = {}) {
+      try {
+        const fullData = { action: action, ...payload };
+        const url = `${GAS_URL}?action=${action}&data=${encodeURIComponent(JSON.stringify(fullData))}`;
+        
+        const response = await fetch(url);
+        const result = await response.json();
+        return result;
+      } catch (e) {
+        console.error("Ошибка запроса:", e);
+        return { success: false, error: e.toString() };
+      }
+    }
+
     // Инициализация интерфейса
     function initProfile() {
       document.getElementById("user-name").innerText = user.first_name;
@@ -208,26 +223,17 @@
       loadUserData();
     }
 
-    // Загрузка данных с бэкенда
+    // Загрузка данных пользователя
     async function loadUserData() {
-      try {
-        const response = await fetch(GAS_URL, {
-          method: "POST",
-          body: JSON.stringify({
-            action: "getUser",
-            user_id: user.id,
-            first_name: user.first_name,
-            username: user.username,
-            photo_url: user.photo_url
-          })
-        });
-        
-        const res = await response.json();
-        if (res.success) {
-          updateUI(res.user);
-        }
-      } catch (e) {
-        console.error("Ошибка загрузки данных:", e);
+      const res = await sendRequest("getUser", {
+        user_id: user.id,
+        first_name: user.first_name,
+        username: user.username,
+        photo_url: user.photo_url
+      });
+
+      if (res.success) {
+        updateUI(res.user);
       }
     }
 
@@ -258,26 +264,17 @@
     // Начисление баллов
     async function addReward(amount, isFree) {
       tg.MainButton.showProgress();
-      try {
-        const response = await fetch(GAS_URL, {
-          method: "POST",
-          body: JSON.stringify({
-            action: "addReward",
-            user_id: user.id,
-            plm_amount: amount,
-            is_free_spin: isFree
-          })
-        });
-        const res = await response.json();
-        if (res.success) {
-          tg.showAlert(`Получено +${amount} PLM!`);
-          loadUserData();
-        }
-      } catch (e) {
-        tg.showAlert("Ошибка при зачислении");
-      } finally {
-        tg.MainButton.hideProgress();
+      const res = await sendRequest("addReward", {
+        user_id: user.id,
+        plm_amount: amount,
+        is_free_spin: isFree
+      });
+
+      if (res.success) {
+        tg.showAlert(`Получено +${amount} PLM!`);
+        loadUserData();
       }
+      tg.MainButton.hideProgress();
     }
 
     // Обработка кнопки Спина
@@ -291,52 +288,28 @@
 
     // Симуляция/Вызов просмотра рекламы
     function watchAd() {
-      // Здесь подключается скрипт рекламной сети (например, Adsgram / Monetag)
-      // После завершения показа вызывается зачисление:
       addReward(50, false);
     }
 
     // Конвертация валюты
     async function convertCurrency() {
-      try {
-        const response = await fetch(GAS_URL, {
-          method: "POST",
-          body: JSON.stringify({
-            action: "convertCurrency",
-            user_id: user.id
-          })
-        });
-        const res = await response.json();
-        if (res.success) {
-          tg.showAlert("Успешно обменено 1000 PLM на 1 ICE!");
-          loadUserData();
-        } else {
-          tg.showAlert(res.error || "Недостаточно PLM");
-        }
-      } catch (e) {
-        tg.showAlert("Ошибка соединения");
+      const res = await sendRequest("convertCurrency", { user_id: user.id });
+      if (res.success) {
+        tg.showAlert("Успешно обменено 1000 PLM на 1 ICE!");
+        loadUserData();
+      } else {
+        tg.showAlert(res.error || "Недостаточно PLM");
       }
     }
 
-    // Покупка/Переключение анонимности
+    // Покупка анонимности
     async function toggleAnon() {
-      try {
-        const response = await fetch(GAS_URL, {
-          method: "POST",
-          body: JSON.stringify({
-            action: "toggleAnonymous",
-            user_id: user.id
-          })
-        });
-        const res = await response.json();
-        if (res.success) {
-          tg.showAlert("Статус анонимности изменен!");
-          loadUserData();
-        } else {
-          tg.showAlert(res.error || "Ошибка переключения");
-        }
-      } catch (e) {
-        tg.showAlert("Ошибка соединения");
+      const res = await sendRequest("toggleAnonymous", { user_id: user.id });
+      if (res.success) {
+        tg.showAlert("Статус анонимности изменен!");
+        loadUserData();
+      } else {
+        tg.showAlert(res.error || "Ошибка переключения");
       }
     }
 
