@@ -4,8 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Пломбир Web App</title>
+  
   <!-- Telegram Web App SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  
+  <!-- Adsgram SDK -->
+  <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+
   <style>
     :root {
       --bg-color: var(--tg-theme-bg-color, #17212b);
@@ -23,6 +28,7 @@
       margin: 0;
       padding: 15px;
       box-sizing: border-box;
+      user-select: none;
     }
 
     .card {
@@ -34,67 +40,66 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
 
-    .user-info {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      text-align: left;
-    }
-
-    .avatar {
-      width: 60px;
-      height: 60px;
+    .profile-avatar {
+      width: 70px;
+      height: 70px;
       border-radius: 50%;
+      margin: 0 auto 10px;
       object-fit: cover;
       border: 2px solid var(--btn-color);
     }
 
-    .user-details h3 {
-      margin: 0 0 4px 0;
+    .user-name {
       font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 4px;
     }
 
-    .user-details p {
-      margin: 0;
+    .status-badge {
       font-size: 13px;
       color: var(--hint-color);
+      background: rgba(255,255,255,0.05);
+      padding: 4px 10px;
+      border-radius: 20px;
+      display: inline-block;
     }
 
-    .balances {
-      display: flex;
-      justify-content: space-around;
-      margin-top: 15px;
-      padding-top: 12px;
-      border-top: 1px solid rgba(255,255,255,0.1);
+    .balance-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 15px;
     }
 
-    .balance-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+    .balance-card {
+      background-color: var(--secondary-bg);
+      border-radius: 12px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .balance-title {
+      font-size: 12px;
+      color: var(--hint-color);
+      margin-bottom: 4px;
     }
 
     .balance-val {
       font-size: 20px;
       font-weight: bold;
-      color: #ffd700;
-    }
-
-    .balance-val.ice {
-      color: #00ffff;
     }
 
     .btn {
+      width: 100%;
       background-color: var(--btn-color);
       color: var(--btn-text);
       border: none;
-      padding: 12px 16px;
+      padding: 14px;
       border-radius: 12px;
       font-size: 15px;
       font-weight: 600;
       cursor: pointer;
-      width: 100%;
-      margin-top: 10px;
+      margin-bottom: 10px;
       transition: opacity 0.2s;
     }
 
@@ -103,103 +108,57 @@
     }
 
     .btn-secondary {
-      background-color: transparent;
-      border: 1px solid var(--btn-color);
-      color: var(--btn-color);
-    }
-
-    .store-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 10px;
-    }
-
-    .store-item {
-      background: rgba(0,0,0,0.2);
-      padding: 12px;
-      border-radius: 10px;
-      font-size: 13px;
+      background-color: rgba(255,255,255,0.1);
+      color: var(--text-color);
     }
   </style>
 </head>
 <body>
 
-  <!-- Карточка пользователя -->
+  <!-- Профиль -->
   <div class="card">
-    <div class="user-info">
-      <img id="user-avatar" class="avatar" src="https://via.placeholder.com/60" alt="Avatar">
-      <div class="user-details">
-        <h3 id="user-name">Загрузка...</h3>
-        <p id="user-status">Обычный статус</p>
-      </div>
+    <img id="user-avatar" class="profile-avatar" src="https://via.placeholder.com/70" alt="Avatar">
+    <div id="user-name" class="user-name">Загрузка...</div>
+    <div id="user-status" class="status-badge">Загрузка статуса...</div>
+  </div>
+
+  <!-- Балансы -->
+  <div class="balance-grid">
+    <div class="balance-card">
+      <div class="balance-title">Баланс PLM</div>
+      <div id="plm-val" class="balance-val">0</div>
     </div>
-    
-    <div class="balances">
-      <div class="balance-item">
-        <span>Баланс PLM</span>
-        <span id="plm-val" class="balance-val">0</span>
-      </div>
-      <div class="balance-item">
-        <span>Баланс ICE</span>
-        <span id="ice-val" class="balance-val ice">0</span>
-      </div>
+    <div class="balance-card">
+      <div class="balance-title">Баланс ICE</div>
+      <div id="ice-val" class="balance-val">0</div>
     </div>
   </div>
 
-  <!-- Блок ежедневной активности и рекламы -->
-  <div class="card">
-    <h3>Ежедневный Спин & Реклама</h3>
-    <p style="font-size: 13px; color: var(--hint-color);">Смотрите рекламу, получайте PLM и копите на проходки!</p>
-    
-    <button id="spin-btn" class="btn" onclick="handleSpin()">Крутить колесо (+50 PLM)</button>
-    <button class="btn btn-secondary" onclick="watchAd()">Смотреть рекламу (+50 PLM)</button>
-  </div>
-
-  <!-- Магазин и Обменник -->
-  <div class="card">
-    <h3>Plombir Store & Обменник</h3>
-    
-    <button class="btn" onclick="convertCurrency()">Обменять 1000 PLM ➔ 1 ICE</button>
-    <button class="btn btn-secondary" onclick="toggleAnon()">Купить Анонимность (300 PLM)</button>
-
-    <div class="store-grid">
-      <div class="store-item">
-        <strong>Проходка</strong><br>
-        10 ICE
-      </div>
-      <div class="store-item">
-        <strong>Fast Pass</strong><br>
-        5 ICE
-      </div>
-      <div class="store-item">
-        <strong>Коктейль</strong><br>
-        3 ICE
-      </div>
-      <div class="store-item">
-        <strong>Стикерпак</strong><br>
-        1 ICE
-      </div>
-    </div>
-  </div>
+  <!-- Действия -->
+  <button id="spin-btn" class="btn" onclick="handleSpin()">Загрузка...</button>
+  <button class="btn btn-secondary" onclick="convertCurrency()">Обменять 1000 PLM на 1 ICE</button>
+  <button class="btn btn-secondary" onclick="toggleAnon()">Купить/Включить Аноним (300 PLM)</button>
 
   <script>
     const GAS_URL = "https://script.google.com/macros/s/AKfycbyk5Ih2ObBFIF3fKu88iWgXd63yN2S9SwA7pmTSsc9uVMsYS_v1Y5Z0nA-kYP-N3bUF/exec";
     
+    // ВСТАВЬТЕ ВАШ BLOCK ID ИЗ ADSGRAM (например: "1234")
+    const ADSGRAM_BLOCK_ID = "ВАШ_BLOCK_ID_ИЗ_ADSGRAM";
+
     const tg = window.Telegram.WebApp;
     tg.expand();
 
-    // Данные пользователя из Telegram SDK
+    // Данные пользователя из Telegram
     const user = tg.initDataUnsafe?.user || {
       id: 12345678,
       first_name: "Тестовый Тусовщик",
       username: "test_user",
-      photo_url: "https://via.placeholder.com/60"
+      photo_url: "https://via.placeholder.com/70"
     };
 
     let canFreeSpin = false;
 
-    // Универсальная функция запроса к Google Apps Script через GET (без блокировок CORS)
+    // Универсальная функция запроса к Google Apps Script
     async function sendRequest(action, payload = {}) {
       try {
         const fullData = { action: action, ...payload };
@@ -214,9 +173,9 @@
       }
     }
 
-    // Инициализация интерфейса
+    // Инициализация
     function initProfile() {
-      document.getElementById("user-name").innerText = user.first_name;
+      document.getElementById("user-name").innerText = user.first_name || "Тусовщик";
       if (user.photo_url) {
         document.getElementById("user-avatar").src = user.photo_url;
       }
@@ -227,9 +186,9 @@
     async function loadUserData() {
       const res = await sendRequest("getUser", {
         user_id: user.id,
-        first_name: user.first_name,
-        username: user.username,
-        photo_url: user.photo_url
+        first_name: user.first_name || "Тусовщик",
+        username: user.username || "",
+        photo_url: user.photo_url || ""
       });
 
       if (res.success) {
@@ -237,19 +196,23 @@
       }
     }
 
+    // Обновление интерфейса
     function updateUI(userData) {
       document.getElementById("plm-val").innerText = userData.plm_balance;
       document.getElementById("ice-val").innerText = userData.ice_balance;
       
       const statusEl = document.getElementById("user-status");
+      const nameEl = document.getElementById("user-name");
+      const avatarEl = document.getElementById("user-avatar");
+
       if (userData.is_anonymous === 1) {
         statusEl.innerText = "Анонимный статус 🕵️";
-        document.getElementById("user-name").innerText = "Анонимный Пломбир";
-        document.getElementById("user-avatar").src = "https://via.placeholder.com/60/708499/ffffff?text=Anon";
+        nameEl.innerText = "Анонимный Пломбир";
+        avatarEl.src = "https://via.placeholder.com/70/708499/ffffff?text=Anon";
       } else {
-        statusEl.innerText = "Обычный статус";
-        document.getElementById("user-name").innerText = user.first_name;
-        if (user.photo_url) document.getElementById("user-avatar").src = user.photo_url;
+        statusEl.innerText = "Статус: Тусовщик 🎉";
+        nameEl.innerText = user.first_name || "Тусовщик";
+        if (user.photo_url) avatarEl.src = user.photo_url;
       }
 
       canFreeSpin = userData.can_free_spin;
@@ -257,13 +220,13 @@
       if (canFreeSpin) {
         spinBtn.innerText = "Бесплатный спин дня (+50 PLM)";
       } else {
-        spinBtn.innerText = "Спин за рекламу (+50 PLM)";
+        spinBtn.innerText = "Спин за рекламу Adsgram (+50 PLM)";
       }
     }
 
     // Начисление баллов
     async function addReward(amount, isFree) {
-      tg.MainButton.showProgress();
+      if (tg.MainButton) tg.MainButton.showProgress();
       const res = await sendRequest("addReward", {
         user_id: user.id,
         plm_amount: amount,
@@ -271,13 +234,13 @@
       });
 
       if (res.success) {
-        tg.showAlert(`Получено +${amount} PLM!`);
+        if (tg.showAlert) tg.showAlert(`Начислено +${amount} PLM!`);
         loadUserData();
       }
-      tg.MainButton.hideProgress();
+      if (tg.MainButton) tg.MainButton.hideProgress();
     }
 
-    // Обработка кнопки Спина
+    // Кнопка спина
     function handleSpin() {
       if (canFreeSpin) {
         addReward(50, true);
@@ -286,30 +249,46 @@
       }
     }
 
-    // Симуляция/Вызов просмотра рекламы
+    // Просмотр рекламы Adsgram
     function watchAd() {
-      addReward(50, false);
+      if (!window.Adsgram) {
+        if (tg.showAlert) tg.showAlert("Реклама временно недоступна");
+        return;
+      }
+
+      const AdController = window.Adsgram.init({
+        blockId: ADSGRAM_BLOCK_ID,
+        debug: false
+      });
+
+      AdController.show().then((result) => {
+        addReward(50, false);
+      }).catch((result) => {
+        if (tg.showAlert) {
+          tg.showAlert("Реклама не была досмотрена до конца");
+        }
+      });
     }
 
-    // Конвертация валюты
+    // Обмен валюты
     async function convertCurrency() {
       const res = await sendRequest("convertCurrency", { user_id: user.id });
       if (res.success) {
-        tg.showAlert("Успешно обменено 1000 PLM на 1 ICE!");
+        if (tg.showAlert) tg.showAlert("Успешно обменено 1000 PLM на 1 ICE!");
         loadUserData();
       } else {
-        tg.showAlert(res.error || "Недостаточно PLM");
+        if (tg.showAlert) tg.showAlert(res.error || "Недостаточно PLM");
       }
     }
 
-    // Покупка анонимности
+    // Переключение анонимности
     async function toggleAnon() {
       const res = await sendRequest("toggleAnonymous", { user_id: user.id });
       if (res.success) {
-        tg.showAlert("Статус анонимности изменен!");
+        if (tg.showAlert) tg.showAlert("Статус анонимности изменен!");
         loadUserData();
       } else {
-        tg.showAlert(res.error || "Ошибка переключения");
+        if (tg.showAlert) tg.showAlert(res.error || "Ошибка переключения");
       }
     }
 
