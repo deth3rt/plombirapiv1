@@ -2,8 +2,8 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Пломбир Web App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Пломбир Mini App</title>
   
   <!-- Telegram Web App SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -11,178 +11,351 @@
   <!-- Adsgram SDK -->
   <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
 
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+
   <style>
     :root {
-      --bg-color: var(--tg-theme-bg-color, #17212b);
-      --text-color: var(--tg-theme-text-color, #ffffff);
-      --hint-color: var(--tg-theme-hint-color, #708499);
-      --btn-color: var(--tg-theme-button-color, #5288c1);
-      --btn-text: var(--tg-theme-button-text-color, #ffffff);
-      --secondary-bg: var(--tg-theme-secondary-bg-color, #232e3c);
+      --bg-color: #0b0f19;
+      --card-bg: rgba(23, 32, 51, 0.65);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --text-main: #ffffff;
+      --text-muted: #94a3b8;
+      --accent-plm: linear-gradient(135deg, #ff8a00 0%, #e52e71 100%);
+      --accent-ice: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%);
+      --btn-glow: 0 8px 24px rgba(229, 46, 113, 0.35);
+      --radius-xl: 24px;
+      --radius-lg: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
       background-color: var(--bg-color);
-      color: var(--text-color);
-      margin: 0;
-      padding: 15px;
-      box-sizing: border-box;
+      background-image: 
+        radial-gradient(circle at 10% 10%, rgba(229, 46, 113, 0.12) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(0, 198, 255, 0.1) 0%, transparent 40%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      min-height: 100vh;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
       user-select: none;
     }
 
-    .card {
-      background-color: var(--secondary-bg);
-      border-radius: 16px;
-      padding: 16px;
-      margin-bottom: 15px;
+    .container {
+      max-width: 440px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* Анимированная профильная карточка */
+    .profile-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-xl);
+      padding: 20px;
       text-align: center;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      margin-bottom: 16px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+    }
+
+    .avatar-wrapper {
+      position: relative;
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 12px;
+    }
+
+    .avatar-ring {
+      position: absolute;
+      inset: -3px;
+      background: var(--accent-plm);
+      border-radius: 50%;
+      animation: rotateRing 8s linear infinite;
+    }
+
+    @keyframes rotateRing {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
 
     .profile-avatar {
-      width: 70px;
-      height: 70px;
+      position: relative;
+      width: 100%;
+      height: 100%;
       border-radius: 50%;
-      margin: 0 auto 10px;
       object-fit: cover;
-      border: 2px solid var(--btn-color);
+      border: 3px solid #0b0f19;
+      background-color: #1a2332;
     }
 
     .user-name {
-      font-size: 18px;
-      font-weight: bold;
-      margin-bottom: 4px;
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+      margin-bottom: 6px;
+      color: var(--text-main);
     }
 
     .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
       font-size: 13px;
-      color: var(--hint-color);
-      background: rgba(255,255,255,0.05);
-      padding: 4px 10px;
+      font-weight: 600;
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      padding: 5px 14px;
       border-radius: 20px;
-      display: inline-block;
     }
 
+    /* Грид балансов */
     .balance-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 15px;
+      gap: 12px;
+      margin-bottom: 20px;
     }
 
     .balance-card {
-      background-color: var(--secondary-bg);
-      border-radius: 12px;
-      padding: 12px;
-      text-align: center;
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      position: relative;
+      overflow: hidden;
     }
 
-    .balance-title {
+    .balance-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+    }
+
+    .balance-card.plm::before { background: var(--accent-plm); }
+    .balance-card.ice::before { background: var(--accent-ice); }
+
+    .balance-label {
       font-size: 12px;
-      color: var(--hint-color);
-      margin-bottom: 4px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
-    .balance-val {
-      font-size: 20px;
-      font-weight: bold;
+    .balance-value {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: #ffffff;
+    }
+
+    /* Кнопки действий */
+    .actions-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
     }
 
     .btn {
       width: 100%;
-      background-color: var(--btn-color);
-      color: var(--btn-text);
       border: none;
-      padding: 14px;
-      border-radius: 12px;
+      outline: none;
+      padding: 16px 20px;
+      border-radius: var(--radius-lg);
+      font-family: inherit;
       font-size: 15px;
-      font-weight: 600;
+      font-weight: 700;
       cursor: pointer;
-      margin-bottom: 10px;
-      transition: opacity 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
     }
 
     .btn:active {
-      opacity: 0.8;
+      transform: scale(0.98);
+    }
+
+    .btn-main {
+      background: var(--accent-plm);
+      color: #ffffff;
+      box-shadow: var(--btn-glow);
+      font-size: 16px;
+    }
+
+    .btn-main:hover {
+      opacity: 0.95;
     }
 
     .btn-secondary {
-      background-color: rgba(255,255,255,0.1);
-      color: var(--text-color);
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      color: #ffffff;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .btn-icon {
+      font-size: 18px;
+    }
+
+    /* Скелетон/загрузка */
+    .loading-shimmer {
+      opacity: 0.6;
+      animation: pulse 1.5s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.4; }
+      50% { opacity: 0.8; }
+      100% { opacity: 0.4; }
     }
   </style>
 </head>
 <body>
 
-  <!-- Профиль -->
-  <div class="card">
-    <img id="user-avatar" class="profile-avatar" src="https://via.placeholder.com/70" alt="Avatar">
-    <div id="user-name" class="user-name">Загрузка...</div>
-    <div id="user-status" class="status-badge">Загрузка статуса...</div>
-  </div>
-
-  <!-- Балансы -->
-  <div class="balance-grid">
-    <div class="balance-card">
-      <div class="balance-title">Баланс PLM</div>
-      <div id="plm-val" class="balance-val">0</div>
+  <div class="container">
+    <!-- Шапка профиля -->
+    <div class="profile-card">
+      <div class="avatar-wrapper">
+        <div class="avatar-ring"></div>
+        <img id="user-avatar" class="profile-avatar" src="https://via.placeholder.com/80/1a2332/ffffff?text=P" alt="Аватар">
+      </div>
+      <div id="user-name" class="user-name">Загрузка...</div>
+      <div id="user-status" class="status-badge">
+        <span>🎉</span> <span id="status-text">Загрузка...</span>
+      </div>
     </div>
-    <div class="balance-card">
-      <div class="balance-title">Баланс ICE</div>
-      <div id="ice-val" class="balance-val">0</div>
+
+    <!-- Балансы -->
+    <div class="balance-grid">
+      <div class="balance-card plm">
+        <div class="balance-label">✨ Баланс PLM</div>
+        <div id="plm-val" class="balance-value loading-shimmer">0</div>
+      </div>
+      <div class="balance-card ice">
+        <div class="balance-label">💎 Баланс ICE</div>
+        <div id="ice-val" class="balance-value loading-shimmer">0</div>
+      </div>
+    </div>
+
+    <!-- Действия -->
+    <div class="actions-group">
+      <button id="spin-btn" class="btn btn-main" onclick="handleSpin()">
+        <span class="btn-icon">🎰</span>
+        <span id="spin-btn-text">Получить бонус</span>
+      </button>
+
+      <button class="btn btn-secondary" onclick="convertCurrency()">
+        <span class="btn-icon">🔄</span>
+        <span>Обменять 1000 PLM на 1 ICE</span>
+      </button>
+
+      <button class="btn btn-secondary" onclick="toggleAnon()">
+        <span class="btn-icon">🕵️</span>
+        <span id="anon-btn-text">Анонимный статус (300 PLM)</span>
+      </button>
     </div>
   </div>
-
-  <!-- Действия -->
-  <button id="spin-btn" class="btn" onclick="handleSpin()">Загрузка...</button>
-  <button class="btn btn-secondary" onclick="convertCurrency()">Обменять 1000 PLM на 1 ICE</button>
-  <button class="btn btn-secondary" onclick="toggleAnon()">Купить/Включить Аноним (300 PLM)</button>
 
   <script>
     const GAS_URL = "https://script.google.com/macros/s/AKfycbyk5Ih2ObBFIF3fKu88iWgXd63yN2S9SwA7pmTSsc9uVMsYS_v1Y5Z0nA-kYP-N3bUF/exec";
     
-    // ВСТАВЬТЕ ВАШ BLOCK ID ИЗ ADSGRAM (например: "1234")
+    // Вставьте ваш реальный BLOCK ID из Adsgram
     const ADSGRAM_BLOCK_ID = "46719";
 
     const tg = window.Telegram.WebApp;
     tg.expand();
 
-    // Данные пользователя из Telegram
+    // Безопасное получение данных из Telegram SDK
     const user = tg.initDataUnsafe?.user || {
       id: 12345678,
       first_name: "Тестовый Тусовщик",
       username: "test_user",
-      photo_url: "https://via.placeholder.com/70"
+      photo_url: ""
     };
 
     let canFreeSpin = false;
 
-    // Универсальная функция запроса к Google Apps Script
+    // Вспомогательная функция виброотклика
+    function triggerHaptic(type = 'light') {
+      if (tg.HapticFeedback) {
+        if (type === 'success') tg.HapticFeedback.notificationOccurred('success');
+        else if (type === 'error') tg.HapticFeedback.notificationOccurred('error');
+        else tg.HapticFeedback.impactOccurred(type);
+      }
+    }
+
+    // Универсальная функция запросов к Google Apps Script
     async function sendRequest(action, payload = {}) {
       try {
         const fullData = { action: action, ...payload };
         const url = `${GAS_URL}?action=${action}&data=${encodeURIComponent(JSON.stringify(fullData))}`;
-        
         const response = await fetch(url);
-        const result = await response.json();
-        return result;
+        return await response.json();
       } catch (e) {
-        console.error("Ошибка запроса:", e);
+        console.error("Ошибка сети:", e);
         return { success: false, error: e.toString() };
       }
     }
 
-    // Инициализация
+    // Инициализация при старте
     function initProfile() {
-      document.getElementById("user-name").innerText = user.first_name || "Тусовщик";
-      if (user.photo_url) {
-        document.getElementById("user-avatar").src = user.photo_url;
-      }
+      // 1. Мгновенная отрисовка из localStores (за 0.01 сек)
+      loadCachedData();
+      
+      // 2. Фоновый синхронный запрос на сервер
       loadUserData();
     }
 
-    // Загрузка данных пользователя
+    function loadCachedData() {
+      const cached = localStorage.getItem(`plombir_user_${user.id}`);
+      if (cached) {
+        try {
+          const userData = JSON.parse(cached);
+          updateUI(userData);
+        } catch (e) { console.error("Ошибка чтения кэша", e); }
+      } else {
+        document.getElementById("user-name").innerText = user.first_name || "Тусовщик";
+        if (user.photo_url) document.getElementById("user-avatar").src = user.photo_url;
+      }
+    }
+
     async function loadUserData() {
       const res = await sendRequest("getUser", {
         user_id: user.id,
@@ -191,42 +364,48 @@
         photo_url: user.photo_url || ""
       });
 
-      if (res.success) {
+      if (res.success && res.user) {
+        localStorage.setItem(`plombir_user_${user.id}`, JSON.stringify(res.user));
         updateUI(res.user);
       }
     }
 
-    // Обновление интерфейса
     function updateUI(userData) {
-      document.getElementById("plm-val").innerText = userData.plm_balance;
-      document.getElementById("ice-val").innerText = userData.ice_balance;
-      
-      const statusEl = document.getElementById("user-status");
+      // Снимаем эффекты задержки загрузки
+      document.getElementById("plm-val").classList.remove("loading-shimmer");
+      document.getElementById("ice-val").classList.remove("loading-shimmer");
+
+      document.getElementById("plm-val").innerText = userData.plm_balance ?? 0;
+      document.getElementById("ice-val").innerText = userData.ice_balance ?? 0;
+
       const nameEl = document.getElementById("user-name");
       const avatarEl = document.getElementById("user-avatar");
+      const statusText = document.getElementById("status-text");
 
       if (userData.is_anonymous === 1) {
-        statusEl.innerText = "Анонимный статус 🕵️";
+        statusText.innerText = "Анонимный статус";
         nameEl.innerText = "Анонимный Пломбир";
-        avatarEl.src = "https://via.placeholder.com/70/708499/ffffff?text=Anon";
+        avatarEl.src = "https://via.placeholder.com/80/708499/ffffff?text=Anon";
       } else {
-        statusEl.innerText = "Статус: Тусовщик 🎉";
+        statusText.innerText = "Статус: Тусовщик";
         nameEl.innerText = user.first_name || "Тусовщик";
-        if (user.photo_url) avatarEl.src = user.photo_url;
+        avatarEl.src = user.photo_url || "https://via.placeholder.com/80/1a2332/ffffff?text=P";
       }
 
       canFreeSpin = userData.can_free_spin;
-      const spinBtn = document.getElementById("spin-btn");
+      const spinBtnText = document.getElementById("spin-btn-text");
       if (canFreeSpin) {
-        spinBtn.innerText = "Бесплатный спин дня (+50 PLM)";
+        spinBtnText.innerText = "Бесплатный спин дня (+50 PLM)";
       } else {
-        spinBtn.innerText = "Спин за рекламу Adsgram (+50 PLM)";
+        spinBtnText.innerText = "Спин за рекламу (+50 PLM)";
       }
     }
 
-    // Начисление баллов
+    // Выполнение выигрышного спина
     async function addReward(amount, isFree) {
+      triggerHaptic('medium');
       if (tg.MainButton) tg.MainButton.showProgress();
+
       const res = await sendRequest("addReward", {
         user_id: user.id,
         plm_amount: amount,
@@ -234,14 +413,18 @@
       });
 
       if (res.success) {
-        if (tg.showAlert) tg.showAlert(`Начислено +${amount} PLM!`);
-        loadUserData();
+        triggerHaptic('success');
+        if (tg.showAlert) tg.showAlert(`🎉 Вам начислено +${amount} PLM!`);
+        await loadUserData();
+      } else {
+        triggerHaptic('error');
+        if (tg.showAlert) tg.showAlert("Ошибка начисления награды");
       }
       if (tg.MainButton) tg.MainButton.hideProgress();
     }
 
-    // Кнопка спина
     function handleSpin() {
+      triggerHaptic('light');
       if (canFreeSpin) {
         addReward(50, true);
       } else {
@@ -249,10 +432,11 @@
       }
     }
 
-    // Просмотр рекламы Adsgram
+    // Просмотр рекламы через Adsgram SDK
     function watchAd() {
       if (!window.Adsgram) {
-        if (tg.showAlert) tg.showAlert("Реклама временно недоступна");
+        triggerHaptic('error');
+        if (tg.showAlert) tg.showAlert("Рекламный блок временно недоступен");
         return;
       }
 
@@ -264,34 +448,42 @@
       AdController.show().then((result) => {
         addReward(50, false);
       }).catch((result) => {
+        triggerHaptic('error');
         if (tg.showAlert) {
-          tg.showAlert("Реклама не была досмотрена до конца");
+          tg.showAlert("Просмотр рекламы не был завершен");
         }
       });
     }
 
-    // Обмен валюты
+    // Конвертация PLM в ICE
     async function convertCurrency() {
+      triggerHaptic('light');
       const res = await sendRequest("convertCurrency", { user_id: user.id });
       if (res.success) {
-        if (tg.showAlert) tg.showAlert("Успешно обменено 1000 PLM на 1 ICE!");
-        loadUserData();
+        triggerHaptic('success');
+        if (tg.showAlert) tg.showAlert("💎 Успешно обменено 1000 PLM на 1 ICE!");
+        await loadUserData();
       } else {
-        if (tg.showAlert) tg.showAlert(res.error || "Недостаточно PLM");
+        triggerHaptic('error');
+        if (tg.showAlert) tg.showAlert(res.error || "Недостаточно PLM на балансе");
       }
     }
 
     // Переключение анонимности
     async function toggleAnon() {
+      triggerHaptic('light');
       const res = await sendRequest("toggleAnonymous", { user_id: user.id });
       if (res.success) {
-        if (tg.showAlert) tg.showAlert("Статус анонимности изменен!");
-        loadUserData();
+        triggerHaptic('success');
+        if (tg.showAlert) tg.showAlert("Статус профиля успешно изменен!");
+        await loadUserData();
       } else {
-        if (tg.showAlert) tg.showAlert(res.error || "Ошибка переключения");
+        triggerHaptic('error');
+        if (tg.showAlert) tg.showAlert(res.error || "Недостаточно PLM для покупки (нужно 300 PLM)");
       }
     }
 
+    // Старт
     initProfile();
   </script>
 </body>
