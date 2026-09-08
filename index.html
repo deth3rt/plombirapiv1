@@ -4,18 +4,25 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>ПЛОМБИР | Mini App</title>
+  <!-- Telegram WebApp SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <!-- Adsgram SDK -->
+  <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+  
   <style>
     :root {
-      --bg-color: #0d0d0d;
-      --card-bg: #181818;
-      --card-border: #2a2a2a;
+      --bg-color: #0c0f17;
+      --card-bg: rgba(23, 28, 44, 0.75);
+      --card-border: rgba(255, 255, 255, 0.08);
       --text-main: #ffffff;
-      --text-muted: #8e8e93;
-      --accent: #ffffff;
-      --accent-hover: #e5e5e5;
+      --text-muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-hover: #0284c7;
       --name-color: #ffffff;
-      --avatar-border-color: #2a2a2a;
+      --avatar-border-color: #38bdf8;
+      --font-style: normal;
+      --font-weight: 500;
+      --text-glow: none;
     }
 
     * {
@@ -33,18 +40,38 @@
       flex-direction: column;
       height: 100vh;
       overflow: hidden;
-      transition: background-color 0.3s, color 0.3s;
+      transition: background-color 0.4s ease, color 0.4s ease;
+    }
+
+    /* Анимации появление элементов */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0.8); opacity: 0; }
+      70% { transform: scale(1.05); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes pulseGlow {
+      0% { box-shadow: 0 0 5px var(--accent); }
+      50% { box-shadow: 0 0 20px var(--accent); }
+      100% { box-shadow: 0 0 5px var(--accent); }
     }
 
     /* Верхняя панель профиля */
     .top-bar {
-      padding: 16px;
+      padding: 14px 16px;
       background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       border-bottom: 1px solid var(--card-border);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      transition: background 0.3s, border-color 0.3s;
+      z-index: 10;
     }
 
     .user-info {
@@ -55,65 +82,79 @@
 
     .avatar-wrapper {
       position: relative;
+      cursor: pointer;
     }
 
     .avatar {
-      width: 48px;
-      height: 48px;
+      width: 50px;
+      height: 50px;
       border-radius: 50%;
-      background: #333;
+      background: #1e293b;
       object-fit: cover;
-      border: 2px solid var(--avatar-border-color);
-      transition: border-color 0.3s;
+      border: 2.5px solid var(--avatar-border-color);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .avatar:active {
+      transform: scale(0.92);
     }
 
     .user-details .name {
       font-size: 16px;
-      font-weight: 600;
       color: var(--name-color);
+      font-style: var(--font-style);
+      font-weight: var(--font-weight);
+      text-shadow: var(--text-glow);
     }
 
     .user-details .status {
       font-size: 12px;
       color: var(--text-muted);
+      margin-top: 2px;
     }
 
     .balance-badge {
       text-align: right;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 6px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--card-border);
     }
 
     .balance-badge .val {
-      font-size: 16px;
+      font-size: 14px;
       font-weight: 700;
-      letter-spacing: 0.5px;
+      color: #38bdf8;
     }
 
     .balance-badge .sub {
       font-size: 11px;
-      color: var(--text-muted);
+      color: #f59e0b;
+      font-weight: 600;
     }
 
-    /* Баннер при просмотре чужой страницы */
     .viewing-banner {
-      background: rgba(255, 255, 255, 0.1);
-      border-bottom: 1px solid var(--card-border);
+      background: linear-gradient(90deg, #f59e0b, #d97706);
+      color: #000;
+      font-weight: 600;
       padding: 8px 16px;
       display: none;
       align-items: center;
       justify-content: space-between;
       font-size: 13px;
+      animation: fadeIn 0.3s ease;
     }
 
     .viewing-banner.active {
       display: flex;
     }
 
-    /* Основной контейнер с автоскроллом */
+    /* Основной контейнер */
     .main-container {
       flex: 1;
       overflow-y: auto;
       padding: 16px;
-      padding-bottom: 80px;
+      padding-bottom: 90px;
     }
 
     .tab-content {
@@ -124,21 +165,24 @@
       display: flex;
       flex-direction: column;
       gap: 16px;
+      animation: fadeIn 0.3s ease forwards;
     }
 
-    /* Стиль карточек */
+    /* Карточки */
     .card {
       background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       border: 1px solid var(--card-border);
-      border-radius: 16px;
-      padding: 16px;
-      transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
+      border-radius: 20px;
+      padding: 18px;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
     }
 
     .card-title {
-      font-size: 18px;
+      font-size: 17px;
       font-weight: 700;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -147,100 +191,170 @@
     /* Кнопки */
     .btn {
       width: 100%;
-      padding: 12px;
-      border-radius: 12px;
+      padding: 12px 16px;
+      border-radius: 14px;
       border: none;
-      background: var(--accent);
-      color: #000;
+      background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+      color: #fff;
       font-size: 14px;
       font-weight: 600;
       cursor: pointer;
-      transition: opacity 0.2s, transform 0.1s, background 0.3s;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 15px rgba(56, 189, 248, 0.2);
     }
 
     .btn:active {
-      opacity: 0.8;
-      transform: scale(0.98);
+      transform: scale(0.96);
+      opacity: 0.9;
     }
 
     .btn:disabled {
-      background: #333 !important;
-      color: #666 !important;
+      background: #334155 !important;
+      color: #64748b !important;
       cursor: not-allowed;
-      transform: none;
+      transform: none !important;
+      box-shadow: none !important;
     }
 
     .btn-secondary {
-      background: rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.05);
       color: var(--text-main);
       border: 1px solid var(--card-border);
+      box-shadow: none;
     }
 
-    /* Сетки товаров и подарков */
+    /* Вкладки магазина */
+    .shop-tabs {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      margin-bottom: 12px;
+    }
+
+    .shop-tab-btn {
+      padding: 8px 14px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      font-size: 12px;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    .shop-tab-btn.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+      font-weight: 600;
+    }
+
     .shop-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
+      gap: 12px;
     }
 
     .shop-item {
-      background: rgba(0,0,0,0.2);
+      background: rgba(0, 0, 0, 0.25);
       border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: 12px;
+      border-radius: 16px;
+      padding: 14px;
       display: flex;
       flex-direction: column;
       align-items: center;
       text-align: center;
       gap: 8px;
+      transition: transform 0.2s ease;
     }
 
-    .shop-item-icon {
-      font-size: 28px;
+    .shop-item:hover {
+      transform: translateY(-2px);
     }
 
-    .shop-item-title {
-      font-size: 13px;
-      font-weight: 600;
-    }
-
-    .shop-item-price {
-      font-size: 12px;
-      color: var(--text-muted);
-    }
-
-    /* Сетка подарков в профиле */
-    .gifts-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-      margin-top: 8px;
-    }
-
-    .gift-badge {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid var(--card-border);
-      border-radius: 10px;
-      padding: 8px;
-      text-align: center;
-      font-size: 20px;
-      position: relative;
-    }
-
-    .gift-badge .count {
-      position: absolute;
-      top: -4px;
-      right: -4px;
-      background: var(--accent);
-      color: #000;
-      font-size: 10px;
-      font-weight: 700;
+    .color-preview {
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
-      width: 16px;
-      height: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+    }
+
+    /* Полочка подарков (Витрина за стеклом) */
+    .shelf-container {
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 41, 59, 0.9) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 20px;
+      padding: 16px;
+      position: relative;
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
+      overflow: hidden;
+    }
+
+    .shelf-container::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent 45%, rgba(255, 255, 255, 0.03) 50%, transparent 55%);
+      pointer-events: none;
+    }
+
+    .shelf-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .shelf-item {
+      background: rgba(255, 255, 255, 0.03);
+      border-bottom: 4px solid rgba(255, 255, 255, 0.15);
+      border-radius: 14px;
+      padding: 12px 6px;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
+      position: relative;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      cursor: pointer;
+    }
+
+    .shelf-item:hover {
+      transform: scale(1.08) translateY(-4px);
+    }
+
+    .shelf-item .icon {
+      font-size: 38px;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
+      animation: popIn 0.4s ease;
+    }
+
+    .shelf-item .badge-count {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      background: #ef4444;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    }
+
+    .shelf-item .gift-title {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 6px;
     }
 
     /* Колесо рулетки */
@@ -249,72 +363,52 @@
       flex-direction: column;
       align-items: center;
       gap: 16px;
-      margin: 10px 0;
     }
 
     .wheel-container {
       position: relative;
-      width: 240px;
-      height: 240px;
+      width: 250px;
+      height: 250px;
     }
 
     .wheel-pointer {
       position: absolute;
-      top: -10px;
+      top: -12px;
       left: 50%;
       transform: translateX(-50%);
       width: 0;
       height: 0;
-      border-left: 12px solid transparent;
-      border-right: 12px solid transparent;
-      border-top: 20px solid var(--text-main);
+      border-left: 14px solid transparent;
+      border-right: 14px solid transparent;
+      border-top: 22px solid #ef4444;
       z-index: 10;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
     }
 
     #wheelCanvas {
       width: 100%;
       height: 100%;
       border-radius: 50%;
-      border: 4px solid var(--card-border);
+      border: 6px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 0 20px rgba(0,0,0,0.6);
       transition: transform 4s cubic-bezier(0.15, 0.9, 0.15, 1);
     }
 
     /* Лидерборд */
-    .leaderboard-list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
     .leader-item {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 12px;
-      background: rgba(255,255,255,0.03);
-      border-radius: 12px;
+      padding: 12px 14px;
+      background: rgba(255,255,255,0.02);
+      border-radius: 14px;
       border: 1px solid var(--card-border);
-      transition: border-color 0.3s, box-shadow 0.3s, transform 0.2s;
-      cursor: pointer;
+      margin-bottom: 8px;
+      transition: transform 0.2s ease, background 0.2s ease;
     }
 
     .leader-item:active {
-      transform: scale(0.99);
-    }
-
-    .leader-item.theme-neon {
-      border: 1px solid #00f0ff;
-      box-shadow: 0 0 10px rgba(0, 240, 255, 0.25);
-    }
-
-    .leader-item.theme-gold {
-      border: 1px solid #ffd700;
-      box-shadow: 0 0 10px rgba(255, 215, 0, 0.25);
-    }
-
-    .leader-item.theme-default {
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      box-shadow: 0 0 8px rgba(255, 255, 255, 0.08);
+      transform: scale(0.98);
     }
 
     .leader-info {
@@ -323,41 +417,101 @@
       gap: 12px;
     }
 
-    .leader-actions {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .icon-btn {
-      background: rgba(255,255,255,0.08);
+    .like-btn {
+      background: rgba(255, 255, 255, 0.05);
       border: 1px solid var(--card-border);
       color: var(--text-main);
+      padding: 6px 12px;
+      border-radius: 20px;
       cursor: pointer;
-      padding: 6px 10px;
-      border-radius: 8px;
-      font-size: 13px;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s ease;
     }
 
     .like-btn.liked {
-      color: #ff453a;
-      background: rgba(255, 69, 58, 0.2);
+      background: rgba(239, 68, 68, 0.2);
+      border-color: #ef4444;
+      color: #ef4444;
     }
 
-    /* Нижняя навигация */
+    /* Чат */
+    .chat-messages {
+      height: 280px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding-right: 6px;
+      margin-bottom: 12px;
+    }
+
+    .chat-msg {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .chat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    .chat-author {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .chat-time {
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    .chat-text {
+      font-size: 13px;
+      color: #e2e8f0;
+      word-break: break-word;
+    }
+
+    .chat-input-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .chat-input {
+      flex: 1;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 10px 14px;
+      color: #fff;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .chat-input:focus {
+      border-color: var(--accent);
+    }
+
+    /* Нижнее меню */
     .bottom-nav {
       position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 65px;
+      bottom: 0; left: 0; right: 0;
+      height: 68px;
       background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       border-top: 1px solid var(--card-border);
       display: flex;
       justify-content: space-around;
       align-items: center;
       z-index: 100;
-      transition: background 0.3s, border-color 0.3s;
     }
 
     .nav-item {
@@ -366,35 +520,64 @@
       align-items: center;
       gap: 4px;
       color: var(--text-muted);
-      text-decoration: none;
-      font-size: 11px;
+      font-size: 10px;
       cursor: pointer;
       background: none;
       border: none;
       width: 20%;
+      transition: color 0.2s ease, transform 0.2s ease;
     }
 
     .nav-item.active {
-      color: var(--text-main);
+      color: var(--accent);
+      transform: translateY(-2px);
     }
 
     .nav-icon {
-      font-size: 18px;
+      font-size: 20px;
+    }
+
+    /* Модальные окна */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      padding: 16px;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .modal {
+      background: #1e293b;
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: 20px;
+      width: 100%;
+      max-width: 360px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
     }
 
     /* Всплывающие уведомления */
     .toast {
       position: fixed;
-      top: 20px;
-      left: 50%;
+      top: 20px; left: 50%;
       transform: translateX(-50%) translateY(-100px);
       background: #ffffff;
-      color: #000000;
-      padding: 12px 24px;
-      border-radius: 25px;
+      color: #0f172a;
+      padding: 12px 20px;
+      border-radius: 30px;
       font-weight: 600;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-      transition: transform 0.3s ease;
+      font-size: 13px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
       z-index: 1000;
       text-align: center;
       max-width: 90%;
@@ -404,45 +587,47 @@
       transform: translateX(-50%) translateY(0);
     }
 
-    /* Модальное окно */
-    .modal-overlay {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.7);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 200;
+    /* Просмотр полноэкранного фото */
+    .fullscreen-avatar {
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid var(--accent);
+      margin: 0 auto 16px auto;
+      display: block;
+      box-shadow: 0 0 30px var(--accent);
     }
 
-    .modal-overlay.active {
-      display: flex;
-    }
-
-    .modal {
-      background: var(--card-bg);
+    /* Редактирование поля "О себе" */
+    .bio-textarea {
+      width: 100%;
+      height: 80px;
+      background: rgba(0,0,0,0.3);
       border: 1px solid var(--card-border);
-      border-radius: 16px;
-      padding: 20px;
-      width: 90%;
-      max-width: 340px;
+      border-radius: 12px;
+      padding: 10px;
+      color: #fff;
+      font-size: 13px;
+      resize: none;
+      margin-top: 8px;
     }
   </style>
 </head>
 <body>
 
-  <!-- Toast всплывашка -->
+  <!-- Всплывающие уведомления -->
   <div id="toast" class="toast">Уведомление</div>
 
-  <!-- Верхний профильный баннер -->
+  <!-- Верхняя шапка профиля -->
   <div class="top-bar">
     <div class="user-info">
-      <div class="avatar-wrapper">
-        <img id="userAvatar" class="avatar" src="https://via.placeholder.com/48/333/fff?text=P" alt="Avatar">
+      <div class="avatar-wrapper" onclick="openFullAvatar()">
+        <img id="userAvatar" class="avatar" src="https://via.placeholder.com/100/1e293b/fff?text=P" alt="Avatar">
       </div>
       <div class="user-details">
         <div id="userName" class="name">Загрузка...</div>
-        <div id="userStatus" class="status">Новичок</div>
+        <div id="userStatus" class="status">Ранг: Загрузка...</div>
       </div>
     </div>
     <div class="balance-badge">
@@ -451,159 +636,189 @@
     </div>
   </div>
 
-  <!-- Баннер просмотра профиля другого игрока -->
+  <!-- Баннер просмотра чужого профиля -->
   <div id="viewingBanner" class="viewing-banner">
-    <span>👀 Просмотр чужого профиля</span>
-    <button class="btn btn-secondary" style="width: auto; padding: 4px 10px; font-size: 11px;" onclick="exitGuestView()">Вернуться к себе</button>
+    <span>👀 Вы смотрите профиль игрока</span>
+    <button class="btn btn-secondary" style="width: auto; padding: 4px 10px; font-size: 11px; color:#000; border-color:#000;" onclick="exitGuestView()">Вернуться</button>
   </div>
 
-  <!-- Основной контент (Вкладки) -->
+  <!-- Основной контейнер с вкладками -->
   <div class="main-container">
 
-    <!-- Вкладка 1: Спин / Заработок -->
+    <!-- Вкладка 1: ГЛАВНАЯ / ДОМ -->
     <div id="tab-home" class="tab-content active">
+      <!-- Колесо Фортуны -->
       <div class="card">
         <div class="card-title">
-          <span>Колесо Фортуны</span>
+          <span>🎡 Колесо Фортуны</span>
           <span style="font-size: 12px; color: var(--text-muted);" id="spinStatus">1 спин в день</span>
         </div>
         <div class="wheel-wrapper">
           <div class="wheel-container">
             <div class="wheel-pointer"></div>
-            <canvas id="wheelCanvas" width="240" height="240"></canvas>
+            <canvas id="wheelCanvas" width="250" height="250"></canvas>
           </div>
           <button id="spinBtn" class="btn" onclick="spinWheel()">Вращать бесплатно</button>
         </div>
       </div>
 
+      <!-- Заработок и Обмен -->
       <div class="card">
-        <div class="card-title">Заработок и обмен</div>
+        <div class="card-title">💼 Активность и Доход</div>
         <div style="display: flex; flex-direction: column; gap: 10px;">
-          <button class="btn btn-secondary" onclick="watchAd()">📺 Смотреть рекламу (+50 PLM)</button>
-          <button class="btn btn-secondary" onclick="convertCurrency()">🔄 Обмен: 1000 PLM ➔ 1 ICE</button>
+          <button class="btn" onclick="watchAdsgramAd()">📺 Смотреть Adsgram (+50 PLM)</button>
+          <button class="btn btn-secondary" onclick="convertCurrency()">🔄 Обменять 1000 PLM ➔ 1 ICE</button>
+        </div>
+      </div>
+
+      <!-- Лента ЧАТА -->
+      <div class="card">
+        <div class="card-title">💬 Общий Чат</div>
+        <div class="chat-messages" id="chatMessages"></div>
+        <div class="chat-input-row">
+          <input type="text" id="chatInput" class="chat-input" placeholder="Напишите сообщение..." maxlength="120" onkeypress="handleChatKeyPress(event)">
+          <button class="btn" style="width: auto; padding: 0 16px;" onclick="sendChatMessage()">🚀</button>
         </div>
       </div>
     </div>
 
-    <!-- Вкладка 2: Магазин кастомизации -->
+    <!-- Вкладка 2: МАГАЗИН КАСТОМИЗАЦИИ -->
     <div id="tab-shop" class="tab-content">
       <div class="card">
-        <div class="card-title">Темы оформления</div>
-        <div class="shop-grid">
-          <div class="shop-item">
-            <div class="shop-item-icon">🌌</div>
-            <div class="shop-item-title">Neon Dark</div>
-            <div class="shop-item-price">500 PLM</div>
-            <button class="btn btn-secondary" onclick="buyTheme('neon', 500, 'PLM')">Купить</button>
-          </div>
-          <div class="shop-item">
-            <div class="shop-item-icon">👑</div>
-            <div class="shop-item-title">Gold VIP</div>
-            <div class="shop-item-price">5 ICE</div>
-            <button class="btn btn-secondary" onclick="buyTheme('gold', 5, 'ICE')">Купить</button>
-          </div>
+        <div class="card-title">🛍️ Магазин Стилей</div>
+        
+        <!-- Категории магазина -->
+        <div class="shop-tabs">
+          <button class="shop-tab-btn active" onclick="switchShopCat('colors', this)">Цвета Ника (20+)</button>
+          <button class="shop-tab-btn" onclick="switchShopCat('styles', this)">Стили Ника</button>
+          <button class="shop-tab-btn" onclick="switchShopCat('themes', this)">Темы Оформления</button>
         </div>
-      </div>
 
-      <div class="card">
-        <div class="card-title">Статусы</div>
-        <div class="shop-grid">
-          <div class="shop-item">
-            <div class="shop-item-icon">🍦</div>
-            <div class="shop-item-title">Мороженщик</div>
-            <div class="shop-item-price">300 PLM</div>
-            <button class="btn btn-secondary" onclick="buyStatus('Мороженщик 🍦', 300, 'PLM')">Купить</button>
-          </div>
-          <div class="shop-item">
-            <div class="shop-item-icon">🔥</div>
-            <div class="shop-item-title">Король Пати</div>
-            <div class="shop-item-price">3 ICE</div>
-            <button class="btn btn-secondary" onclick="buyStatus('Король Пати 🔥', 3, 'ICE')">Купить</button>
-          </div>
-        </div>
-      </div>
+        <!-- Категория 1: Цвета Ника -->
+        <div id="shop-cat-colors" class="shop-grid"></div>
 
-      <div class="card">
-        <div class="card-title">Цвет Имени</div>
-        <div class="shop-grid">
+        <!-- Категория 2: Стили шрифта -->
+        <div id="shop-cat-styles" class="shop-grid" style="display: none;">
           <div class="shop-item">
-            <div class="shop-item-icon">🔴</div>
-            <div class="shop-item-title">Красный ник</div>
-            <div class="shop-item-price">400 PLM</div>
-            <button class="btn btn-secondary" onclick="buyNameColor('#ff453a', 400, 'PLM')">Купить</button>
+            <div style="font-weight: bold; font-size: 16px;">Жирный текст</div>
+            <div style="font-size: 11px; color: var(--text-muted);">Выделение в списке</div>
+            <div style="font-size: 12px; color: #38bdf8;">500 PLM</div>
+            <button class="btn btn-secondary" onclick="buyStyle('bold', 500, 'PLM')">Купить</button>
           </div>
           <div class="shop-item">
-            <div class="shop-item-icon">🟡</div>
-            <div class="shop-item-title">Золотой ник</div>
-            <div class="shop-item-price">2 ICE</div>
-            <button class="btn btn-secondary" onclick="buyNameColor('#ffd700', 2, 'ICE')">Купить</button>
+            <div style="font-style: italic; font-size: 16px;">Курсивный текст</div>
+            <div style="font-size: 11px; color: var(--text-muted);">Элегантный стиль</div>
+            <div style="font-size: 12px; color: #38bdf8;">500 PLM</div>
+            <button class="btn btn-secondary" onclick="buyStyle('italic', 500, 'PLM')">Купить</button>
+          </div>
+          <div class="shop-item">
+            <div style="text-shadow: 0 0 8px #ef4444; font-size: 16px;">Neon Подсветка</div>
+            <div style="font-size: 11px; color: var(--text-muted);">Свечение имя</div>
+            <div style="font-size: 12px; color: #f59e0b;">5 ICE</div>
+            <button class="btn btn-secondary" onclick="buyStyle('glow', 5, 'ICE')">Купить</button>
           </div>
         </div>
+
+        <!-- Категория 3: Темы -->
+        <div id="shop-cat-themes" class="shop-grid" style="display: none;">
+          <div class="shop-item">
+            <div style="font-size: 28px;">🌌</div>
+            <div style="font-size: 13px; font-weight: 600;">Neon Dark</div>
+            <div style="font-size: 12px; color: #38bdf8;">500 PLM</div>
+            <button class="btn btn-secondary" onclick="buyTheme('neon', 500, 'PLM')">Применить</button>
+          </div>
+          <div class="shop-item">
+            <div style="font-size: 28px;">👑</div>
+            <div style="font-size: 13px; font-weight: 600;">Gold VIP</div>
+            <div style="font-size: 12px; color: #f59e0b;">5 ICE</div>
+            <button class="btn btn-secondary" onclick="buyTheme('gold', 5, 'ICE')">Применить</button>
+          </div>
+          <div class="shop-item">
+            <div style="font-size: 28px;">🌲</div>
+            <div style="font-size: 13px; font-weight: 600;">Emerald</div>
+            <div style="font-size: 12px; color: #38bdf8;">800 PLM</div>
+            <button class="btn btn-secondary" onclick="buyTheme('emerald', 800, 'PLM')">Применить</button>
+          </div>
+        </div>
+
       </div>
     </div>
 
-    <!-- Вкладка 3: Доска Почёта -->
+    <!-- Вкладка 3: ДОСКА ПОЧЁТА -->
     <div id="tab-leaderboard" class="tab-content">
       <div class="card">
         <div class="card-title">
-          <span>Доска почёта</span>
-          <span style="font-size: 12px; color: var(--text-muted);">Топ тусовщиков</span>
+          <span>🏆 Топ Тусовщиков</span>
+          <span style="font-size: 12px; color: var(--text-muted);">По рейтингу</span>
         </div>
-        <div class="leaderboard-list" id="leaderboardList"></div>
+        <div id="leaderboardList"></div>
       </div>
     </div>
 
-    <!-- Вкладка 4: Личный профиль / Подарки -->
+    <!-- Вкладка 4: ПРОФИЛЬ С ПОЛОЧКОЙ ПОДАРКОВ -->
     <div id="tab-profile" class="tab-content">
+      
+      <!-- Расширенная карточка профиля -->
+      <div class="card">
+        <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 12px;">
+          <img id="profileDetailAvatar" class="avatar" style="width: 64px; height: 64px;" src="" onclick="openFullAvatar()">
+          <div>
+            <div id="profileDetailName" style="font-size: 18px; font-weight: 700;">-</div>
+            <div id="profileDetailStatus" style="font-size: 12px; color: var(--text-muted);">Ранг: Новичок</div>
+            <div id="profileRegDate" style="font-size: 10px; color: var(--text-muted); margin-top: 2px;">В клубе с: 2026г.</div>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 12px;">
+          <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">О себе:</div>
+          <div id="profileBioDisplay" style="font-size: 13px; line-height: 1.4; color: #cbd5e1;">Описание не заполнено</div>
+          <button id="editBioBtn" class="btn btn-secondary" style="margin-top: 8px; padding: 6px 12px; font-size: 12px;" onclick="openBioModal()">Редактировать "О себе"</button>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 12px;">
+          <div>
+            <div style="font-size: 10px; color: var(--text-muted);">Лайков получено</div>
+            <div id="profileLikesCount" style="font-size: 14px; font-weight: 700; color: #ef4444;">❤️ 0</div>
+          </div>
+          <div>
+            <div style="font-size: 10px; color: var(--text-muted);">Рекламы просмотрено</div>
+            <div id="profileAdsCount" style="font-size: 14px; font-weight: 700; color: #38bdf8;">📺 0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Полочка Подарков за стеклом -->
       <div class="card">
         <div class="card-title">
-          <span id="giftsTitle">Мои подарки</span>
-          <button id="sendGiftProfileBtn" class="btn btn-secondary" style="display:none; width:auto; padding:6px 12px; font-size:12px;" onclick="openGiftForCurrentGuest()">Сделать подарок 🎁</button>
+          <span id="giftsTitle">🎁 Витрина Подарков</span>
+          <button id="sendGiftProfileBtn" class="btn" style="display:none; width:auto; padding:6px 12px; font-size:12px;" onclick="openGiftForCurrentGuest()">Подарить 🎁</button>
         </div>
-        <div class="gifts-grid" id="profileGifts"></div>
+        
+        <div class="shelf-container">
+          <div class="shelf-grid" id="profileShelfGifts"></div>
+        </div>
       </div>
 
-      <div class="card">
-        <div class="card-title">Мини-профиль</div>
-        <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 8px;">
-          <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--card-border); padding-bottom: 8px;">
-            <span style="color: var(--text-muted);">Telegram ID:</span>
-            <span id="profileId">-</span>
-          </div>
-          <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--card-border); padding-bottom: 8px;">
-            <span style="color: var(--text-muted);">Просмотрено рекламы:</span>
-            <span id="profileAds">0</span>
-          </div>
-          <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--card-border); padding-bottom: 8px;">
-            <span style="color: var(--text-muted);">Лайков получено:</span>
-            <span id="profileLikes">0</span>
-          </div>
-          <div id="anonRow" style="display: flex; justify-content: space-between; align-items: center; padding-top: 4px;">
-            <span style="color: var(--text-muted);">Режим анонимности:</span>
-            <button id="anonBtn" class="btn btn-secondary" style="width: auto; padding: 6px 12px; font-size: 13px;" onclick="toggleAnon()">Купить за 300 PLM</button>
-          </div>
-        </div>
-      </div>
     </div>
 
-    <!-- Вкладка 5: Информация -->
+    <!-- Вкладка 5: ИНФО / ПОДДЕРЖКА -->
     <div id="tab-settings" class="tab-content">
       <div class="card">
-        <div class="card-title">О проекте «ПЛОМБИР»</div>
-        <p style="font-size: 14px; color: var(--text-muted); line-height: 1.5; margin-bottom: 12px;">
-          Официальное Telegram Mini App-приложение экосистемы ПЛОМБИР. Зарабатывайте PLM, покупайте кастомизацию, дарите подарки друзьям и занимайте высшие места в рейтинге!
+        <div class="card-title">ℹ️ О проекте «ПЛОМБИР»</div>
+        <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 16px;">
+          Добро пожаловать в официальное интерактивное пространство **ПЛОМБИР**! Зарабатывайте PLM, копите редкие драгоценности ICE, выражайте индивидуальность кастомным стилем ника и дарите подарки друзьям на витрину!
         </p>
-        <button class="btn btn-secondary" onclick="contactSupport()">💬 Связаться с поддержкой</button>
+        <button class="btn" onclick="contactSupport()">💬 Поддержка: @plombirsupport</button>
       </div>
     </div>
 
   </div>
 
-  <!-- Нижнее меню навигации -->
+  <!-- Нижняя навигация -->
   <div class="bottom-nav">
     <button class="nav-item active" onclick="switchTab('home', this)">
-      <span class="nav-icon">🎡</span>
-      <span>Спин</span>
+      <span class="nav-icon">🏠</span>
+      <span>ГЛАВНАЯ</span>
     </button>
     <button class="nav-item" onclick="switchTab('shop', this)">
       <span class="nav-icon">🛍️</span>
@@ -619,47 +834,90 @@
     </button>
     <button class="nav-item" onclick="switchTab('settings', this)">
       <span class="nav-icon">⚙️</span>
-      <span>Обо мне</span>
+      <span>Инфо</span>
     </button>
   </div>
 
-  <!-- Окно Дарения Подарка -->
+  <!-- Модальное окно: Отправка Подарка -->
   <div id="giftModal" class="modal-overlay">
     <div class="modal">
-      <div class="card-title" style="margin-bottom: 8px;">Сделать подарок</div>
-      <p id="giftTargetName" style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;"></p>
-      <div class="shop-grid" style="margin-bottom: 16px;">
-        <div class="shop-item" onclick="sendGift('🍧', 100, 'PLM')">
-          <div class="shop-item-icon">🍧</div>
-          <div class="shop-item-title">Мороженое</div>
-          <div class="shop-item-price">100 PLM</div>
+      <div class="card-title">Отправить подарок</div>
+      <p id="giftTargetName" style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;"></p>
+      
+      <!-- Поле сообщения к подарку -->
+      <input type="text" id="giftMessageInput" class="chat-input" style="width:100%; margin-bottom:12px;" placeholder="Сообщение или подпись (необязательно)" maxlength="60">
+
+      <div class="shop-grid" style="max-height: 220px; overflow-y: auto; margin-bottom: 16px;">
+        <div class="shop-item" onclick="sendGift('✉️', 'Открытка', 50, 'PLM')">
+          <div style="font-size:28px;">✉️</div>
+          <div style="font-size:11px;">Открытка</div>
+          <div style="font-size:10px; color:#38bdf8;">50 PLM</div>
         </div>
-        <div class="shop-item" onclick="sendGift('🚀', 500, 'PLM')">
-          <div class="shop-item-icon">🚀</div>
-          <div class="shop-item-title">Ракета</div>
-          <div class="shop-item-price">500 PLM</div>
+        <div class="shop-item" onclick="sendGift('🍦', 'Мороженое', 100, 'PLM')">
+          <div style="font-size:28px;">🍦</div>
+          <div style="font-size:11px;">Мороженое</div>
+          <div style="font-size:10px; color:#38bdf8;">100 PLM</div>
         </div>
-        <div class="shop-item" onclick="sendGift('💎', 2, 'ICE')">
-          <div class="shop-item-icon">💎</div>
-          <div class="shop-item-title">Алмаз</div>
-          <div class="shop-item-price">2 ICE</div>
+        <div class="shop-item" onclick="sendGift('🎈', 'Шарик', 250, 'PLM')">
+          <div style="font-size:28px;">🎈</div>
+          <div style="font-size:11px;">Шарик</div>
+          <div style="font-size:10px; color:#38bdf8;">250 PLM</div>
         </div>
-        <div class="shop-item" onclick="sendGift('👑', 5, 'ICE')">
-          <div class="shop-item-icon">👑</div>
-          <div class="shop-item-title">Корона</div>
-          <div class="shop-item-price">5 ICE</div>
+        <div class="shop-item" onclick="sendGift('🚀', 'Ракета', 500, 'PLM')">
+          <div style="font-size:28px;">🚀</div>
+          <div style="font-size:11px;">Ракета</div>
+          <div style="font-size:10px; color:#38bdf8;">500 PLM</div>
+        </div>
+        <div class="shop-item" onclick="sendGift('🏎️', 'Суперкар', 2, 'ICE')">
+          <div style="font-size:28px;">🏎️</div>
+          <div style="font-size:11px;">Суперкар</div>
+          <div style="font-size:10px; color:#f59e0b;">2 ICE</div>
+        </div>
+        <div class="shop-item" onclick="sendGift('👑', 'Корона VIP', 5, 'ICE')">
+          <div style="font-size:28px;">👑</div>
+          <div style="font-size:11px;">Корона VIP</div>
+          <div style="font-size:10px; color:#f59e0b;">5 ICE</div>
         </div>
       </div>
       <button class="btn btn-secondary" onclick="closeGiftModal()">Отмена</button>
     </div>
   </div>
 
-  <!-- Скрипт приложения -->
+  <!-- Модальное окно: Просмотр полноэкранного фото -->
+  <div id="avatarModal" class="modal-overlay" onclick="closeFullAvatar()">
+    <div class="modal" style="text-align: center; background: transparent; border: none; box-shadow: none;">
+      <img id="fullAvatarImg" class="fullscreen-avatar" src="">
+      <p style="color: var(--text-muted); font-size: 12px;">Нажмите в любом месте, чтобы закрыть</p>
+    </div>
+  </div>
+
+  <!-- Модальное окно: Редактирование "О себе" -->
+  <div id="bioModal" class="modal-overlay">
+    <div class="modal">
+      <div class="card-title">Расскажите о себе</div>
+      <textarea id="bioInput" class="bio-textarea" placeholder="Напишите пару слов..." maxlength="150"></textarea>
+      <div style="display: flex; gap: 8px; margin-top: 12px;">
+        <button class="btn" onclick="saveBio()">Сохранить</button>
+        <button class="btn btn-secondary" onclick="closeBioModal()">Отмена</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Модальное окно: Чтение Подарка -->
+  <div id="viewGiftNoteModal" class="modal-overlay">
+    <div class="modal">
+      <div class="card-title" id="noteGiftTitle">🎁 Подарок</div>
+      <p id="noteGiftSender" style="font-size: 12px; color: var(--accent); margin-bottom: 8px;"></p>
+      <div id="noteGiftText" style="font-size: 13px; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 12px; color: #e2e8f0; margin-bottom: 16px;"></div>
+      <button class="btn btn-secondary" onclick="closeGiftNoteModal()">Закрыть</button>
+    </div>
+  </div>
+
   <script>
     // URL Google Apps Script
     const GAS_URL = "https://script.google.com/macros/s/AKfycbyWPDCSNuKs9sekPTgcuGh9wbILVTUK2XHyi-tPPXRKc4g3sBdt4nUgW50ijrbuysKh/exec";
 
-    // Инициализация Telegram WebApp
+    // Инициализация Telegram SDK
     const tg = window.Telegram?.WebApp;
     if (tg) {
       tg.ready();
@@ -668,55 +926,77 @@
 
     // Состояние пользователя
     let user = {
-      id: "guest_" + Math.floor(100000 + Math.random() * 900000),
+      id: "user_" + Math.floor(100000 + Math.random() * 900000),
       first_name: "Тусовщик",
       username: "",
-      photo_url: "",
-      plm: 0,
+      photo_url: "https://via.placeholder.com/100/1e293b/fff?text=P",
+      plm: 100,
       ice: 0,
       ads: 0,
       likes: 0,
-      is_anon: 0,
       last_spin_time: 0,
-      status: "Новичок",
+      status: "Новичок 🍧",
       name_color: "#ffffff",
+      font_weight: "500",
+      font_style: "normal",
+      text_glow: "none",
       theme: "default",
-      gifts: {}
+      bio: "Люблю вкусный пломбир и классную музыку!",
+      gifts: [
+        { icon: '🍦', title: 'Мороженое', sender: 'Система', message: 'Добро пожаловать в ПЛОМБИР!' }
+      ]
     };
 
-    // Состояние чужого профиля при просмотре
     let viewingUser = null; 
     let selectedGiftTargetId = null;
-
-    // Контроллеры автообновления
-    let isSyncing = false;
-    let syncTimer = null;
-
-    // Параметры рулетки
-    const wheelSectors = [50, 100, 20, 200, 10, 500, 30, 1000];
     let isSpinning = false;
     let currentRotation = 0;
+    const wheelSectors = [50, 100, 20, 200, 10, 500, 30, 1000];
 
     // Список лидеров
     let leaders = [];
+    
+    // Сообщения чата
+    let chatMessages = [
+      { id: 1, author: "Админ 🍦", text: "Приветствуем всех в чате ПЛОМБИР! 🎉", time: "12:00", color: "#38bdf8" }
+    ];
 
-    // Темы оформления
-    const themes = {
-      default: { bg: '#0d0d0d', card: '#181818', border: '#2a2a2a', accent: '#ffffff' },
-      neon: { bg: '#090a0f', card: '#121526', border: '#1f2747', accent: '#00f0ff' },
-      gold: { bg: '#141008', card: '#241c0e', border: '#3d3018', accent: '#ffd700' }
-    };
+    // База из 20+ Цветов Ника
+    const colorCatalog = [
+      { name: "Белый", code: "#ffffff", price: 0, curr: "PLM" },
+      { name: "Голубой", code: "#38bdf8", price: 100, curr: "PLM" },
+      { name: "Изумруд", code: "#10b981", price: 150, curr: "PLM" },
+      { name: "Желтый", code: "#facc15", price: 150, curr: "PLM" },
+      { name: "Розовый", code: "#f472b6", price: 200, curr: "PLM" },
+      { name: "Фиолетовый", code: "#a855f7", price: 200, curr: "PLM" },
+      { name: "Оранжевый", code: "#fb923c", price: 250, curr: "PLM" },
+      { name: "Алый", code: "#ef4444", price: 300, curr: "PLM" },
+      { name: "Мятный", code: "#34d399", price: 300, curr: "PLM" },
+      { name: "Салатовый", code: "#a3e635", price: 350, curr: "PLM" },
+      { name: "Коралл", code: "#fb7185", price: 400, curr: "PLM" },
+      { name: "Бирюза", code: "#2dd4bf", price: 400, curr: "PLM" },
+      { name: "Неоновый Синий", code: "#60a5fa", price: 500, curr: "PLM" },
+      { name: "Сиреневый", code: "#c084fc", price: 500, curr: "PLM" },
+      // Градиенты и ICE
+      { name: "Золото VIP", code: "linear-gradient(90deg, #ffd700, #ffa500)", price: 1, curr: "ICE" },
+      { name: "Закат Градиент", code: "linear-gradient(90deg, #ff7e5f, #feb47b)", price: 2, curr: "ICE" },
+      { name: "Космос VIP", code: "linear-gradient(90deg, #6a11cb, #2575fc)", price: 2, curr: "ICE" },
+      { name: "Неон Полярный", code: "linear-gradient(90deg, #00c6ff, #0072ff)", price: 3, curr: "ICE" },
+      { name: "Рубин VIP", code: "linear-gradient(90deg, #f83600, #f9d423)", price: 3, curr: "ICE" },
+      { name: "Платина", code: "linear-gradient(90deg, #e0e0e0, #f5f5f5)", price: 4, curr: "ICE" },
+      { name: "Киберпанк", code: "linear-gradient(90deg, #ff007f, #7f00ff)", price: 5, curr: "ICE" }
+    ];
 
-    // Запуск приложения
     window.addEventListener('DOMContentLoaded', () => {
       initTelegramUser();
       loadLocalState();
       drawWheel();
-      startAutoSync();
+      renderShopColors();
+      updateProfileUI();
+      renderChat();
       setInterval(checkSpinAvailability, 1000);
     });
 
-    // Виброотклик Telegram
     function triggerHaptic(type = 'light') {
       if (tg && tg.HapticFeedback) {
         if (type === 'impact') tg.HapticFeedback.impactOccurred('medium');
@@ -725,538 +1005,509 @@
       }
     }
 
-    // Считывание профиля Telegram
     function initTelegramUser() {
       if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
         const u = tg.initDataUnsafe.user;
         user.id = String(u.id);
         user.first_name = u.first_name || "Тусовщик";
         user.username = u.username || "";
-        user.photo_url = u.photo_url || "";
+        if (u.photo_url) user.photo_url = u.photo_url;
       }
     }
 
-    // Сохранение и загрузка локального состояния
     function saveLocalState() {
-      localStorage.setItem(`plombir_user_${user.id}`, JSON.stringify(user));
+      localStorage.setItem(`plombir_v2_${user.id}`, JSON.stringify(user));
     }
 
     function loadLocalState() {
-      const saved = localStorage.getItem(`plombir_user_${user.id}`);
+      const saved = localStorage.getItem(`plombir_v2_${user.id}`);
       if (saved) {
-        try {
-          const parsed = JSON.parse(saved);
-          user = { ...user, ...parsed };
-        } catch (e) { console.error("Ошибка считывания кэша", e); }
+        try { user = { ...user, ...JSON.parse(saved) }; } catch(e){}
       }
-      applyTheme(user.theme || 'default');
-      updateProfileUI();
+      applyUserStyle();
     }
 
-    // Применение темы
-    function applyTheme(themeKey) {
-      const t = themes[themeKey] || themes.default;
-      document.documentElement.style.setProperty('--bg-color', t.bg);
-      document.documentElement.style.setProperty('--card-bg', t.card);
-      document.documentElement.style.setProperty('--card-border', t.border);
-      document.documentElement.style.setProperty('--accent', t.accent);
+    function applyUserStyle() {
+      document.documentElement.style.setProperty('--name-color', user.name_color || '#ffffff');
+      document.documentElement.style.setProperty('--font-weight', user.font_weight || '500');
+      document.documentElement.style.setProperty('--font-style', user.font_style || 'normal');
+      document.documentElement.style.setProperty('--text-glow', user.text_glow || 'none');
     }
 
-    // Показ сообщений
-    function showToast(message) {
+    function showToast(msg) {
       const toast = document.getElementById('toast');
-      toast.innerText = message;
+      toast.innerText = msg;
       toast.classList.add('show');
-      setTimeout(() => {
-        toast.classList.remove('show');
-      }, 3000);
+      setTimeout(() => toast.classList.remove('show'), 3000);
     }
 
-    // Переключение вкладок
-    function switchTab(tabId, btnElement) {
+    function switchTab(tabId, btn) {
       triggerHaptic();
-      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-      document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
 
-      const activeTab = document.getElementById(`tab-${tabId}`);
-      if (activeTab) activeTab.classList.add('active');
-      if (btnElement) btnElement.classList.add('active');
+      document.getElementById(`tab-${tabId}`).classList.add('active');
+      if (btn) btn.classList.add('active');
 
-      if (tabId === 'leaderboard') {
-        renderLeaderboard();
-      }
+      if (tabId === 'leaderboard') renderLeaderboard();
+      if (tabId !== 'profile' && viewingUser) exitGuestView();
+    }
 
-      if (tabId !== 'profile' && viewingUser) {
-        exitGuestView();
+    // Поддержка
+    function contactSupport() {
+      triggerHaptic();
+      if (tg && tg.openTelegramLink) {
+        tg.openTelegramLink("https://t.me/plombirsupport");
+      } else {
+        window.open("https://t.me/plombirsupport", "_blank");
       }
     }
 
-    // Обновление элементов интерфейса профиля
-    function updateProfileUI() {
-      const targetData = viewingUser || user;
-      const isGuest = !!viewingUser;
+    // Adsgram Рекламный Блок 46719
+    function watchAdsgramAd() {
+      triggerHaptic('impact');
+      showToast("Загрузка рекламы...");
 
-      document.getElementById('userName').innerText = targetData.is_anon ? "Анонимный Тусовщик" : (targetData.first_name || targetData.name);
-      document.getElementById('userName').style.color = targetData.is_anon ? "#ffffff" : (targetData.name_color || "#ffffff");
-      document.getElementById('userStatus').innerText = targetData.status || "Новичок";
-      
-      document.getElementById('plmBalance').innerText = user.plm;
-      document.getElementById('iceBalance').innerText = user.ice;
-
-      document.getElementById('profileId').innerText = targetData.id;
-      document.getElementById('profileAds').innerText = targetData.ads ?? 0;
-      document.getElementById('profileLikes').innerText = targetData.likes ?? 0;
-
-      if (targetData.photo_url && !targetData.is_anon) {
-        document.getElementById('userAvatar').src = targetData.photo_url;
+      if (window.AdController) {
+        window.AdController.show({ blockId: "46719" })
+          .then(() => {
+            user.plm += 50;
+            user.ads += 1;
+            updateStatusByProgress();
+            saveLocalState();
+            updateProfileUI();
+            showToast("🎉 Просмотр засчитан! +50 PLM");
+          })
+          .catch((err) => {
+            showToast("Реклама временно недоступна");
+          });
       } else {
-        document.getElementById('userAvatar').src = "https://via.placeholder.com/48/333/fff?text=P";
+        // Симуляция в случае если скрипт заблокирован
+        setTimeout(() => {
+          user.plm += 50;
+          user.ads += 1;
+          updateStatusByProgress();
+          saveLocalState();
+          updateProfileUI();
+          showToast("🎉 Начислено +50 PLM!");
+        }, 1200);
       }
-
-      const anonRow = document.getElementById('anonRow');
-      const giftsTitle = document.getElementById('giftsTitle');
-      const sendGiftBtn = document.getElementById('sendGiftProfileBtn');
-      const viewingBanner = document.getElementById('viewingBanner');
-
-      if (isGuest) {
-        anonRow.style.display = 'none';
-        giftsTitle.innerText = `Подарки (${targetData.name || 'Игрока'})`;
-        sendGiftBtn.style.display = 'block';
-        viewingBanner.classList.add('active');
-      } else {
-        anonRow.style.display = 'flex';
-        giftsTitle.innerText = "Мои подарки";
-        sendGiftBtn.style.display = 'none';
-        viewingBanner.classList.remove('active');
-
-        const anonBtn = document.getElementById('anonBtn');
-        if (user.is_anon) {
-          anonBtn.innerText = "Активен";
-          anonBtn.disabled = true;
-        } else {
-          anonBtn.innerText = "Купить за 300 PLM";
-          anonBtn.disabled = false;
-        }
-      }
-
-      renderGifts(targetData.gifts || {});
-      checkSpinAvailability();
     }
 
-    // Отрисовка сетки подарков
-    function renderGifts(giftsObj) {
-      const container = document.getElementById('profileGifts');
+    // Обновление статусов по прогрессу
+    function updateStatusByProgress() {
+      if (user.ads >= 50) user.status = "Магнат Пломбира 👑";
+      else if (user.ads >= 20) user.status = "Гуру Тусовок 🔥";
+      else if (user.ads >= 5) user.status = "Любитель Сладостей 🍦";
+      else user.status = "Новичок 🍧";
+    }
+
+    // Магазин - рендер 20+ цветов
+    function renderShopColors() {
+      const container = document.getElementById('shop-cat-colors');
       container.innerHTML = "";
-      const gifts = giftsObj || {};
-      const keys = Object.keys(gifts);
 
-      if (keys.length === 0) {
-        container.innerHTML = `<span style="font-size:12px; color:var(--text-muted); grid-column: span 4;">Подарков пока нет</span>`;
-        return;
-      }
-
-      keys.forEach(icon => {
+      colorCatalog.forEach(c => {
         const div = document.createElement('div');
-        div.className = 'gift-badge';
-        div.innerHTML = `${icon} <div class="count">${gifts[icon]}</div>`;
+        div.className = 'shop-item';
+        div.innerHTML = `
+          <div class="color-preview" style="background: ${c.code}"></div>
+          <div style="font-size:12px; font-weight:600;">${c.name}</div>
+          <div style="font-size:11px; color:${c.curr === 'ICE' ? '#f59e0b' : '#38bdf8'}">${c.price} ${c.curr}</div>
+          <button class="btn btn-secondary" style="padding:6px;" onclick="buyColor('${c.code}', ${c.price}, '${c.curr}')">Купить</button>
+        `;
         container.appendChild(div);
       });
     }
 
-    // Проверка таймера спина
-    function checkSpinAvailability() {
-      const now = Date.now();
-      const cooldown = 24 * 60 * 60 * 1000;
-      const spinBtn = document.getElementById('spinBtn');
-      const spinStatus = document.getElementById('spinStatus');
-
-      if (!user.last_spin_time || (now - user.last_spin_time) >= cooldown) {
-        if (!isSpinning) {
-          spinBtn.innerText = "Вращать бесплатно";
-          spinBtn.disabled = false;
-          spinStatus.innerText = "Доступно сейчас!";
-        }
-      } else {
-        const remaining = cooldown - (now - user.last_spin_time);
-        const hours = Math.floor(remaining / (1000 * 60 * 60));
-        const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
-
-        spinBtn.innerText = `Доступно через ${hours}ч ${minutes}м ${seconds}с`;
-        spinBtn.disabled = true;
-        spinStatus.innerText = "Кулдаун 24ч";
-      }
-    }
-
-    // Чужие страницы
-    function viewUserProfile(targetId) {
+    function switchShopCat(cat, btn) {
       triggerHaptic();
-      if (String(targetId) === String(user.id)) {
-        exitGuestView();
-        switchTab('profile', document.querySelectorAll('.nav-item')[3]);
-        return;
-      }
+      document.querySelectorAll('.shop-tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
 
-      const target = leaders.find(l => String(l.id) === String(targetId));
-      if (!target) return;
-
-      viewingUser = target;
-      applyTheme(viewingUser.theme || 'default');
-      updateProfileUI();
-
-      switchTab('profile', document.querySelectorAll('.nav-item')[3]);
-      showToast(`Просмотр страницы: ${viewingUser.name}`);
+      document.getElementById('shop-cat-colors').style.display = cat === 'colors' ? 'grid' : 'none';
+      document.getElementById('shop-cat-styles').style.display = cat === 'styles' ? 'grid' : 'none';
+      document.getElementById('shop-cat-themes').style.display = cat === 'themes' ? 'grid' : 'none';
     }
 
-    function exitGuestView() {
-      triggerHaptic();
-      viewingUser = null;
-      applyTheme(user.theme || 'default');
+    function buyColor(code, price, curr) {
+      triggerHaptic('impact');
+      const key = curr.toLowerCase();
+      if (user[key] < price) return showToast(`Недостаточно ${curr}`);
+
+      user[key] -= price;
+      user.name_color = code;
+      applyUserStyle();
+      saveLocalState();
       updateProfileUI();
+      showToast("Цвет имени обновлен!");
     }
 
-    function openGiftForCurrentGuest() {
+    function buyStyle(styleType, price, curr) {
+      triggerHaptic('impact');
+      const key = curr.toLowerCase();
+      if (user[key] < price) return showToast(`Недостаточно ${curr}`);
+
+      user[key] -= price;
+      if (styleType === 'bold') user.font_weight = '700';
+      if (styleType === 'italic') user.font_style = 'italic';
+      if (styleType === 'glow') user.text_glow = '0 0 10px #ef4444';
+
+      applyUserStyle();
+      saveLocalState();
+      updateProfileUI();
+      showToast("Стиль шрифта применён!");
+    }
+
+    // Обновление Profile UI и Витрины Подарков
+    function updateProfileUI() {
+      const data = viewingUser || user;
+
+      document.getElementById('userName').innerText = data.first_name || data.name;
+      document.getElementById('userStatus').innerText = "Ранг: " + (data.status || "Новичок");
+      document.getElementById('plmBalance').innerText = user.plm;
+      document.getElementById('iceBalance').innerText = user.ice;
+      document.getElementById('userAvatar').src = data.photo_url || user.photo_url;
+
+      // Детали профиля
+      document.getElementById('profileDetailAvatar').src = data.photo_url || user.photo_url;
+      document.getElementById('profileDetailName').innerText = data.first_name || data.name;
+      document.getElementById('profileDetailStatus').innerText = "Ранг: " + (data.status || "Новичок");
+      document.getElementById('profileBioDisplay').innerText = data.bio || "Описание не заполнено";
+      document.getElementById('profileLikesCount').innerText = `❤️ ${data.likes || 0}`;
+      document.getElementById('profileAdsCount').innerText = `📺 ${data.ads || 0}`;
+
+      const viewingBanner = document.getElementById('viewingBanner');
+      const editBioBtn = document.getElementById('editBioBtn');
+      const sendGiftProfileBtn = document.getElementById('sendGiftProfileBtn');
+
       if (viewingUser) {
-        openGiftModal(viewingUser.id, viewingUser.name);
+        viewingBanner.classList.add('active');
+        editBioBtn.style.display = 'none';
+        sendGiftProfileBtn.style.display = 'block';
+      } else {
+        viewingBanner.classList.remove('active');
+        editBioBtn.style.display = 'block';
+        sendGiftProfileBtn.style.display = 'none';
       }
+
+      renderShelfGifts(data.gifts || []);
+      checkSpinAvailability();
     }
 
-    // Покупки
-    function buyTheme(themeKey, price, currency) {
-      triggerHaptic('impact');
-      const currKey = currency.toLowerCase();
-      if (user[currKey] < price) {
-        showToast(`Недостаточно ${currency}`);
+    // Отрисовка Витрины Подарков на Полочке за стеклом
+    function renderShelfGifts(giftList) {
+      const container = document.getElementById('profileShelfGifts');
+      container.innerHTML = "";
+
+      if (!giftList || giftList.length === 0) {
+        container.innerHTML = `<div style="grid-column: span 3; text-align: center; color: var(--text-muted); font-size:12px; padding:20px 0;">На полочке пока нет подарков</div>`;
         return;
       }
-      user[currKey] -= price;
-      user.theme = themeKey;
-      applyTheme(themeKey);
-      saveLocalState();
-      updateProfileUI();
-      renderLeaderboard();
-      showToast("Тема успешно применена!");
-      sendServerUpdate('buyTheme', { theme: themeKey, price, currency });
+
+      // Группировка
+      const grouped = {};
+      giftList.forEach(g => {
+        if (!grouped[g.icon]) grouped[g.icon] = { ...g, count: 0, items: [] };
+        grouped[g.icon].count++;
+        grouped[g.icon].items.push(g);
+      });
+
+      Object.values(grouped).forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'shelf-item';
+        div.onclick = () => openGiftNoteModal(item.items[item.items.length - 1]);
+
+        div.innerHTML = `
+          ${item.count > 1 ? `<div class="badge-count">x${item.count}</div>` : ''}
+          <div class="icon">${item.icon}</div>
+          <div class="gift-title">${item.title}</div>
+        `;
+        container.appendChild(div);
+      });
     }
 
-    function buyStatus(statusName, price, currency) {
-      triggerHaptic('impact');
-      const currKey = currency.toLowerCase();
-      if (user[currKey] < price) {
-        showToast(`Недостаточно ${currency}`);
-        return;
-      }
-      user[currKey] -= price;
-      user.status = statusName;
-      saveLocalState();
-      updateProfileUI();
-      renderLeaderboard();
-      showToast(`Новый статус: ${statusName}`);
-      sendServerUpdate('buyStatus', { status: statusName, price, currency });
-    }
-
-    function buyNameColor(color, price, currency) {
-      triggerHaptic('impact');
-      const currKey = currency.toLowerCase();
-      if (user[currKey] < price) {
-        showToast(`Недостаточно ${currency}`);
-        return;
-      }
-      user[currKey] -= price;
-      user.name_color = color;
-      saveLocalState();
-      updateProfileUI();
-      renderLeaderboard();
-      showToast("Цвет имени изменен!");
-      sendServerUpdate('buyNameColor', { color, price, currency });
-    }
-
-    // Дарение подарка
-    function openGiftModal(targetId, targetName) {
+    // Окно Подарка с подписью
+    function openGiftNoteModal(gift) {
       triggerHaptic();
-      if (String(targetId) === String(user.id)) {
-        showToast("Нельзя дарить подарки самому себе!");
-        return;
-      }
-      selectedGiftTargetId = targetId;
-      document.getElementById('giftTargetName').innerText = `Кому: ${targetName}`;
+      document.getElementById('noteGiftTitle').innerText = `${gift.icon} ${gift.title}`;
+      document.getElementById('noteGiftSender').innerText = `От: ${gift.sender || 'Аноним'}`;
+      document.getElementById('noteGiftText').innerText = gift.message || "Без письменного сообщения";
+      document.getElementById('viewGiftNoteModal').classList.add('active');
+    }
+
+    function closeGiftNoteModal() {
+      document.getElementById('viewGiftNoteModal').classList.remove('active');
+    }
+
+    // Фото профиля Вось весь экран
+    function openFullAvatar() {
+      triggerHaptic();
+      const src = (viewingUser || user).photo_url || user.photo_url;
+      document.getElementById('fullAvatarImg').src = src;
+      document.getElementById('avatarModal').classList.add('active');
+    }
+
+    function closeFullAvatar() {
+      document.getElementById('avatarModal').classList.remove('active');
+    }
+
+    // "О себе"
+    function openBioModal() {
+      triggerHaptic();
+      document.getElementById('bioInput').value = user.bio || '';
+      document.getElementById('bioModal').classList.add('active');
+    }
+
+    function closeBioModal() {
+      document.getElementById('bioModal').classList.remove('active');
+    }
+
+    function saveBio() {
+      triggerHaptic('impact');
+      user.bio = document.getElementById('bioInput').value;
+      saveLocalState();
+      updateProfileUI();
+      closeBioModal();
+      showToast("Информация \"О себе\" сохранена!");
+    }
+
+    // Подарки
+    function openGiftForCurrentGuest() {
+      if (viewingUser) openGiftModal(viewingUser.id, viewingUser.first_name || viewingUser.name);
+    }
+
+    function openGiftModal(id, name) {
+      triggerHaptic();
+      if (String(id) === String(user.id)) return showToast("Нельзя дарить самому себе!");
+      selectedGiftTargetId = id;
+      document.getElementById('giftTargetName').innerText = `Кому: ${name}`;
       document.getElementById('giftModal').classList.add('active');
     }
 
     function closeGiftModal() {
-      triggerHaptic();
       document.getElementById('giftModal').classList.remove('active');
     }
 
-    function sendGift(icon, price, currency = 'PLM') {
+    function sendGift(icon, title, price, curr) {
       triggerHaptic('impact');
-      const currKey = currency.toLowerCase();
-      if (user[currKey] < price) {
-        showToast(`Недостаточно ${currency}`);
-        return;
-      }
+      const key = curr.toLowerCase();
+      if (user[key] < price) return showToast(`Недостаточно ${curr}`);
 
-      user[currKey] -= price;
+      const message = document.getElementById('giftMessageInput').value.trim();
 
-      const targetLeader = leaders.find(l => String(l.id) === String(selectedGiftTargetId));
-      if (targetLeader) {
-        if (!targetLeader.gifts) targetLeader.gifts = {};
-        targetLeader.gifts[icon] = (targetLeader.gifts[icon] || 0) + 1;
+      user[key] -= price;
+
+      const newGiftItem = { icon, title, sender: user.first_name, message: message || "С наилучшими пожеланиями!" };
+
+      if (viewingUser) {
+        if (!viewingUser.gifts) viewingUser.gifts = [];
+        viewingUser.gifts.push(newGiftItem);
       }
 
       saveLocalState();
       updateProfileUI();
       closeGiftModal();
-      showToast(`Подарок ${icon} успешно отправлен!`);
+      document.getElementById('giftMessageInput').value = "";
+      showToast(`Подарок ${icon} доставлен на витрину!`);
+    }
 
-      sendServerUpdate('sendGift', {
-        target_id: selectedGiftTargetId,
-        gift_icon: icon,
-        price,
-        currency
+    // Чат
+    function renderChat() {
+      const container = document.getElementById('chatMessages');
+      container.innerHTML = "";
+
+      chatMessages.forEach(m => {
+        const div = document.createElement('div');
+        div.className = 'chat-msg';
+        div.innerHTML = `
+          <div class="chat-header">
+            <span class="chat-author" style="color: ${m.color || '#38bdf8'}">${m.author}</span>
+            <span class="chat-time">${m.time}</span>
+          </div>
+          <div class="chat-text">${m.text}</div>
+        `;
+        container.appendChild(div);
       });
+      container.scrollTop = container.scrollHeight;
     }
 
-    // Фоновая синхронизация с серверной базой каждые 3 секунды
-    function startAutoSync() {
-      if (syncTimer) clearTimeout(syncTimer);
-      syncData();
+    function sendChatMessage() {
+      const input = document.getElementById('chatInput');
+      const text = input.value.trim();
+      if (!text) return;
+
+      triggerHaptic();
+      const now = new Date();
+      const timeStr = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
+
+      chatMessages.push({
+        id: Date.now(),
+        author: user.first_name,
+        text: text,
+        time: timeStr,
+        color: user.name_color || '#ffffff'
+      });
+
+      input.value = "";
+      renderChat();
     }
 
-    async function syncData() {
-      if (isSyncing || !user.id) return;
-      isSyncing = true;
-
-      try {
-        const [userRes, leaderRes] = await Promise.all([
-          fetch(`${GAS_URL}?action=getUser&data=${encodeURIComponent(JSON.stringify({
-            user_id: user.id,
-            first_name: user.first_name,
-            username: user.username,
-            photo_url: user.photo_url
-          }))}`),
-          fetch(`${GAS_URL}?action=getLeaderboard&user_id=${user.id}`)
-        ]);
-
-        const dataUser = await userRes.json();
-        const dataLeader = await leaderRes.json();
-
-        if (dataUser && dataUser.success && dataUser.user) {
-          user.plm = dataUser.user.plm_balance ?? user.plm;
-          user.ice = dataUser.user.ice_balance ?? user.ice;
-          user.ads = dataUser.user.ads_watched ?? user.ads;
-          user.likes = dataUser.user.likes ?? user.likes;
-          user.is_anon = dataUser.user.is_anonymous ?? user.is_anon;
-          user.last_spin_time = dataUser.user.last_spin_time ?? user.last_spin_time;
-          user.status = dataUser.user.status ?? user.status;
-          user.name_color = dataUser.user.name_color ?? user.name_color;
-          user.theme = dataUser.user.theme ?? user.theme;
-          user.gifts = dataUser.user.gifts ? (typeof dataUser.user.gifts === 'string' ? JSON.parse(dataUser.user.gifts) : dataUser.user.gifts) : user.gifts;
-          
-          if (!viewingUser) applyTheme(user.theme);
-          saveLocalState();
-          updateProfileUI();
-        }
-
-        if (dataLeader && dataLeader.success && Array.isArray(dataLeader.leaders)) {
-          leaders = dataLeader.leaders;
-          renderLeaderboard();
-        }
-
-      } catch (e) {
-        console.warn("Автообновление: связь с сервером потеряна или запрос еще обрабатывается");
-      } finally {
-        isSyncing = false;
-        // Повторный вызов через 3000 миллисекунд после завершения текущего
-        syncTimer = setTimeout(syncData, 3000); 
-      }
+    function handleChatKeyPress(e) {
+      if (e.key === 'Enter') sendChatMessage();
     }
 
-    // Функция отправки изменений в Google Таблицу
-    function sendServerUpdate(action, extraData = {}) {
-      try {
-        fetch(GAS_URL, {
-          method: "POST",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify({ action, user_id: user.id, ...extraData })
-        });
-      } catch (e) {}
-    }
-
-    // Отрисовка рулетки
+    // Колесо Фортуны
     function drawWheel() {
       const canvas = document.getElementById('wheelCanvas');
       const ctx = canvas.getContext('2d');
-      const numSectors = wheelSectors.length;
-      const arc = (2 * Math.PI) / numSectors;
+      const arc = (2 * Math.PI) / wheelSectors.length;
 
-      ctx.clearRect(0, 0, 240, 240);
+      ctx.clearRect(0, 0, 250, 250);
 
-      for (let i = 0; i < numSectors; i++) {
+      for (let i = 0; i < wheelSectors.length; i++) {
         const angle = i * arc;
-        ctx.fillStyle = i % 2 === 0 ? "#1e1e1e" : "#2c2c2c";
+        ctx.fillStyle = i % 2 === 0 ? "#1e293b" : "#0f172a";
         ctx.beginPath();
-        ctx.arc(120, 120, 115, angle, angle + arc);
-        ctx.lineTo(120, 120);
+        ctx.arc(125, 125, 120, angle, angle + arc);
+        ctx.lineTo(125, 125);
         ctx.fill();
-        ctx.strokeStyle = "#101010";
-        ctx.lineWidth = 2;
+        ctx.strokeStyle = "rgba(255,255,255,0.05)";
         ctx.stroke();
 
         ctx.save();
         ctx.fillStyle = "#ffffff";
         ctx.font = "bold 12px sans-serif";
-        ctx.translate(120 + Math.cos(angle + arc / 2) * 75, 120 + Math.sin(angle + arc / 2) * 75);
+        ctx.translate(125 + Math.cos(angle + arc / 2) * 80, 125 + Math.sin(angle + arc / 2) * 80);
         ctx.rotate(angle + arc / 2 + Math.PI / 2);
         ctx.fillText(wheelSectors[i] + " PLM", -22, 0);
         ctx.restore();
       }
     }
 
-    // Вращение колеса
+    function checkSpinAvailability() {
+      const cooldown = 24 * 60 * 60 * 1000;
+      const remaining = cooldown - (Date.now() - (user.last_spin_time || 0));
+      const spinBtn = document.getElementById('spinBtn');
+
+      if (remaining <= 0) {
+        if (!isSpinning) {
+          spinBtn.innerText = "Вращать бесплатно";
+          spinBtn.disabled = false;
+        }
+      } else {
+        const h = Math.floor(remaining / 3600000);
+        const m = Math.floor((remaining % 3600000) / 60000);
+        const s = Math.floor((remaining % 60000) / 1000);
+        spinBtn.innerText = `Кулдаун: ${h}ч ${m}м ${s}с`;
+        spinBtn.disabled = true;
+      }
+    }
+
     function spinWheel() {
       triggerHaptic('impact');
-      const now = Date.now();
-      const cooldown = 24 * 60 * 60 * 1000;
-
-      if (isSpinning || (user.last_spin_time && (now - user.last_spin_time) < cooldown)) return;
-
       isSpinning = true;
       document.getElementById('spinBtn').disabled = true;
 
       const winningIndex = Math.floor(Math.random() * wheelSectors.length);
       const reward = wheelSectors[winningIndex];
 
-      const sectorDegrees = 360 / wheelSectors.length;
-      const targetDegree = 360 - (winningIndex * sectorDegrees) - (sectorDegrees / 2) - 90;
-      const totalRounds = 5 * 360;
-      currentRotation += totalRounds + (targetDegree - (currentRotation % 360));
+      const sectorDeg = 360 / wheelSectors.length;
+      const targetDeg = 360 - (winningIndex * sectorDeg) - (sectorDeg / 2) - 90;
+      currentRotation += (5 * 360) + (targetDeg - (currentRotation % 360));
 
-      const canvas = document.getElementById('wheelCanvas');
-      canvas.style.transform = `rotate(${currentRotation}deg)`;
+      document.getElementById('wheelCanvas').style.transform = `rotate(${currentRotation}deg)`;
 
-      setTimeout(async () => {
+      setTimeout(() => {
         isSpinning = false;
         user.plm += reward;
         user.last_spin_time = Date.now();
         saveLocalState();
         updateProfileUI();
-        renderLeaderboard();
         triggerHaptic('notification');
-        showToast(`🎉 Вы выиграли +${reward} PLM!`);
-
-        sendServerUpdate('addReward', { plm_amount: reward, last_spin_time: user.last_spin_time });
+        showToast(`🎉 Вы выиграли ${reward} PLM!`);
       }, 4000);
     }
 
-    // Просмотр рекламы
-    function watchAd() {
-      triggerHaptic('impact');
-      showToast("📺 Просмотр рекламы...");
-      setTimeout(() => {
-        user.plm += 50;
-        user.ads += 1;
-        saveLocalState();
-        updateProfileUI();
-        renderLeaderboard();
-        triggerHaptic('notification');
-        showToast("Успех! +50 PLM за просмотр рекламы.");
-        sendServerUpdate('watchAd');
-      }, 1500);
-    }
-
-    // Обмен валют
     function convertCurrency() {
       triggerHaptic('impact');
-      if (user.plm < 1000) {
-        showToast("Недостаточно PLM (нужно 1000)");
-        return;
-      }
+      if (user.plm < 1000) return showToast("Нужно минимум 1000 PLM");
       user.plm -= 1000;
       user.ice += 1;
       saveLocalState();
       updateProfileUI();
-      renderLeaderboard();
-      triggerHaptic('notification');
-      showToast("Обменяно 1000 PLM на 1 ICE!");
-      sendServerUpdate('convertCurrency');
+      showToast("Успешно обменяно 1000 PLM ➔ 1 ICE!");
     }
 
-    // Покупка анонимности
-    function toggleAnon() {
-      triggerHaptic('impact');
-      if (user.is_anon) return;
-      if (user.plm < 300) {
-        showToast("Недостаточно PLM (нужно 300)");
-        return;
-      }
-      user.plm -= 300;
-      user.is_anon = 1;
-      saveLocalState();
-      updateProfileUI();
-      renderLeaderboard();
-      triggerHaptic('notification');
-      showToast("Анонимный статус куплен!");
-      sendServerUpdate('toggleAnonymous');
-    }
-
-    // Ставить/снимать лайк
-    function toggleLike(event, targetId) {
-      event.stopPropagation();
+    // Защита от накрутки: Переключатель лайка (1 человек = 1 лайк)
+    function toggleLike(e, targetId) {
+      e.stopPropagation();
       triggerHaptic();
+
       const leader = leaders.find(l => String(l.id) === String(targetId));
       if (!leader) return;
 
       if (leader.liked) {
         leader.likes -= 1;
         leader.liked = false;
+        showToast("Вы забрали свой лайк");
       } else {
         leader.likes += 1;
         leader.liked = true;
+        showToast("Вы поставили лайк ❤️");
       }
 
       renderLeaderboard();
-      sendServerUpdate('toggleLike', { target_id: targetId, liked: leader.liked });
     }
 
-    // Связь с поддержкой
-    function contactSupport() {
+    function viewUserProfile(id) {
       triggerHaptic();
-      if (tg && tg.openTelegramLink) {
-        tg.openTelegramLink("https://t.me/telegram");
-      } else {
-        window.open("https://t.me/telegram", "_blank");
-      }
+      if (String(id) === String(user.id)) return exitGuestView();
+
+      const target = leaders.find(l => String(l.id) === String(id));
+      if (!target) return;
+
+      viewingUser = target;
+      updateProfileUI();
+      switchTab('profile', document.querySelectorAll('.nav-item')[3]);
     }
 
-    // Отрисовка Доски Почёта
+    function exitGuestView() {
+      viewingUser = null;
+      updateProfileUI();
+    }
+
+    // Рендер Лидерборда
     function renderLeaderboard() {
       const container = document.getElementById('leaderboardList');
-      if (!container) return;
       container.innerHTML = "";
 
-      const currentUserItem = {
+      // Формируем список с текущим пользователем
+      let list = [...leaders];
+      const existIdx = list.findIndex(x => String(x.id) === String(user.id));
+      
+      const myCard = {
         id: user.id,
-        name: user.is_anon ? "Анонимный Тусовщик" : user.first_name,
+        first_name: user.first_name,
         score: user.plm,
         likes: user.likes,
-        liked: false,
-        status: user.status || "Новичок",
-        name_color: user.is_anon ? "#ffffff" : user.name_color,
-        theme: user.theme || 'default',
+        status: user.status,
+        photo_url: user.photo_url,
+        name_color: user.name_color,
+        gifts: user.gifts,
+        bio: user.bio,
         isSelf: true
       };
 
-      let allLeaders = leaders.filter(l => String(l.id) !== String(user.id));
-      allLeaders.push(currentUserItem);
+      if (existIdx >= 0) list[existIdx] = myCard;
+      else list.push(myCard);
 
-      allLeaders.sort((a, b) => b.score - a.score);
+      list.sort((a,b) => b.score - a.score);
+      leaders = list;
 
-      allLeaders.forEach((item, index) => {
+      list.forEach((item, index) => {
         const div = document.createElement('div');
-        const themeClass = `theme-${item.theme || 'default'}`;
-        div.className = `leader-item ${themeClass}`;
-        
+        div.className = 'leader-item';
         div.onclick = () => viewUserProfile(item.id);
 
         const rank = index + 1;
@@ -1264,29 +1515,23 @@
 
         div.innerHTML = `
           <div class="leader-info">
-            <span style="font-weight:700; width:24px;">${medal}</span>
+            <span style="font-weight:bold; font-size:12px; width:20px;">${medal}</span>
+            <img class="avatar" style="width:36px; height:36px;" src="${item.photo_url || user.photo_url}">
             <div>
-              <div style="color: ${item.name_color || '#ffffff'}; font-weight:600; font-size:14px;">
-                ${item.name} ${item.isSelf ? '(Вы)' : ''}
-              </div>
-              <div style="font-size:11px; color:var(--text-muted);">
-                ${item.status} • ${item.score} PLM
-              </div>
+              <div style="font-size:13px; color:${item.name_color || '#fff'}">${item.first_name || item.name} ${item.isSelf ? '(Вы)' : ''}</div>
+              <div style="font-size:10px; color:var(--text-muted);">${item.status || 'Новичок'} • ${item.score} PLM</div>
             </div>
           </div>
-          <div class="leader-actions">
+          <div>
             ${!item.isSelf ? `
-              <button class="icon-btn" title="Просмотр профиля" onclick="event.stopPropagation(); viewUserProfile('${item.id}')">👁️</button>
-              <button class="icon-btn" title="Подарить" onclick="event.stopPropagation(); openGiftModal('${item.id}', '${item.name.replace(/'/g, "\\'")}')">🎁</button>
-              <button class="icon-btn like-btn ${item.liked ? 'liked' : ''}" onclick="toggleLike(event, '${item.id}')">
-                ❤️ ${item.likes}
+              <button class="like-btn ${item.liked ? 'liked' : ''}" onclick="toggleLike(event, '${item.id}')">
+                ❤️ ${item.likes || 0}
               </button>
             ` : `
-              <span style="font-size:12px; color:var(--text-muted); padding: 0 4px;">❤️ ${item.likes}</span>
+              <span style="font-size:12px; color:var(--text-muted);">❤️ ${item.likes || 0}</span>
             `}
           </div>
         `;
-
         container.appendChild(div);
       });
     }
